@@ -1,10 +1,22 @@
 let w = 1000
 let h = 1000
-(*
-type player = {
+
+type 'a cyclic_list = {
+  elements: 'a array;
+  mutable i: int;
+  length:int;
+}
+
+type player = { 
+  mutable health: int;
+  mutable feed: int;
   mutable x: int;
-  mutable y: int;
-}*)
+  mutable y:int;
+  mutable xtranslate: int;
+  mutable ytranslate: int;
+  texture: (Raylib.Texture.t cyclic_list) array;  
+  mutable direction: int;
+} 
 
 type batiments =
 {
@@ -14,16 +26,26 @@ type batiments =
   y:int;
   texture :Raylib.Texture.t
 }
+
 type map = 
 {
   batiment: batiments list;
   floor: Raylib.Texture.t;
   roads: batiments list;
 }
+
 let texture_from_image image xsize ysize =
   Raylib.(image_resize (addr image) xsize ysize);
   Raylib.load_texture_from_image(image)
 
+let cyclic_next c_list =
+  if(c_list.i >= c_list.length -2) then 
+    c_list.i <- 0
+  else c_list.i <- c_list.i + 1;
+  ()
+
+let cyclic_top c_list = 
+  c_list.elements.(c_list.i)  
 
 let texture_crop_and_resize s cox coy xsize ysize w h = 
   let open Raylib in 
@@ -59,6 +81,13 @@ let generate_map n =
 
   in aux n []
 
+let player_init () = 
+  let test = Array.init 4 (fun i ->
+    let a2 = Array.init 9 (fun j -> (texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
+  in
+  {elements = a2; i=0; length = 10}) in 
+  {health =20 ; feed = 20; x= 100; y = 100; xtranslate = 0; ytranslate = 0; texture = test; direction = 0}
+
 let generate_floor ()= 
   texture_crop_and_resize "./images/tileset.png" 440. 120. 50. 50. 50 50
 
@@ -75,7 +104,7 @@ let generate_road ()=
     |3 -> aux (x1) (y1+42) (bat::acc) (n-1)
     |_ -> acc
 in 
-(aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 20 ) @ (aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 20 ) 
+(aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 20 ) @ (aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 0 ) 
 
 let rec draw_batiment l =
   match l with
@@ -90,6 +119,18 @@ let draw_floor floor =
   done;
   () 
 
+let update_player (joueur:player) = 
+  let open Raylib in
+  if(is_key_down Key.W) then ((joueur.y <- joueur.y -5; joueur.direction <- 0);   cyclic_next joueur.texture.(0))
+  else if(is_key_down Key.S) then ((joueur.y <- joueur.y +5; joueur.direction <- 1);   cyclic_next joueur.texture.(1))
+  else if(is_key_down Key.D) then ((joueur.x <- joueur.x +5; joueur.direction <- 3);  cyclic_next joueur.texture.(3))
+  else if(is_key_down Key.A) then ((joueur.x <- joueur.x -5; joueur.direction <- 2);   cyclic_next joueur.texture.(2));
+  ()
+
+
+let draw_player (joueur:player) = 
+  Raylib.draw_texture (cyclic_top ((joueur.texture).(joueur.direction))) (joueur.x + joueur.xtranslate) (joueur.y + joueur.ytranslate) Raylib.Color.white
+
 let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
@@ -97,16 +138,20 @@ let setup ()=
   {batiment = generate_map ((Random.int 5) + 1); floor = generate_floor (); roads = generate_road ()}
  
 
-let rec loop map=
+let rec loop map joueur=
   if Raylib.window_should_close () then Raylib.close_window ()
   else
+    update_player joueur;
     let open Raylib in
     begin_drawing ();
     draw_floor map.floor;
     draw_batiment map.roads ;
     draw_batiment map.batiment;
+    draw_player joueur;
     end_drawing ();
-    loop map
+    loop map joueur
 
 let () =
-    loop (setup ());
+    let map = setup () in 
+    let joueur = player_init () in 
+    loop map joueur;
