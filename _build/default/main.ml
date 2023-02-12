@@ -1,6 +1,7 @@
 open Generation
 open Graphic
 open Types
+open Physic
 
 let rec is_inside_list x l =
   match l with 
@@ -24,31 +25,49 @@ let update_map (map:map) (joueur:player) =
         Raylib.draw_text (String.cat (string_of_int (x1+i) )  (string_of_int (y1+j)) ) (300+50 * i) (300+50*j) 30 Raylib.Color.red;
         map.generated <- ((x1 + i),(y1+j))::map.generated;
         map.roads <- generate_road (x1 + i) (y1 + j) @ map.roads;
-        map.batiment <- (generate_map 30 (x1 + i) (y1 + j)) @ map.batiment;)
+        map.batiment <- (generate_map 40 (x1 + i) (y1 + j)) @ map.batiment;)
   done;
 done; 
 ()
   
-let update_player (joueur:player) = 
+let update_player (joueur:player) map = 
   let open Raylib in
-  if(is_key_down Key.W) then ((joueur.y <- joueur.y -5; joueur.direction <- 0);   cyclic_next joueur.texture.(0))
-  else if(is_key_down Key.S) then ((joueur.y <- joueur.y +5; joueur.direction <- 1);   cyclic_next joueur.texture.(1))
-  else if(is_key_down Key.D) then ((joueur.x <- joueur.x +5; joueur.direction <- 3);  cyclic_next joueur.texture.(3))
-  else if(is_key_down Key.A) then ((joueur.x <- joueur.x -5; joueur.direction <- 2);   cyclic_next joueur.texture.(2));
+  if(is_key_down Key.W ) then begin 
+    if not (collision (joueur.x) (joueur.y - 5) map.batiment) then 
+      joueur.y <- joueur.y -5; 
+    joueur.direction <- 0;   
+    cyclic_next joueur.texture.(0) end
+
+  else if(is_key_down Key.S) then 
+    begin if not (collision (joueur.x) (joueur.y + 5) map.batiment) then 
+      joueur.y <- joueur.y +5; 
+  joueur.direction <- 1;   
+  cyclic_next joueur.texture.(1) end 
+
+  else if(is_key_down Key.D) then 
+    begin if not (collision (joueur.x + 5) (joueur.y) map.batiment) then 
+      joueur.x <- joueur.x +5; 
+  joueur.direction <- 3;  
+  cyclic_next joueur.texture.(3) end
+  else if(is_key_down Key.A) then 
+    begin if not (collision (joueur.x - 5) (joueur.y) map.batiment) then 
+      joueur.x <- joueur.x -5;
+   joueur.direction <- 2;   
+   cyclic_next joueur.texture.(2) end;
   ()
 
 let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
-  {batiment = generate_map (60) 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
+  {batiment = generate_map (40) 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
  
 
 let rec loop map joueur=
   if Raylib.window_should_close () then Raylib.close_window ()
   
   else
-    update_player joueur;
+    update_player joueur map;
     update_map map joueur;
     let open Raylib in
     begin_drawing ();
