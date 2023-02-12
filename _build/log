@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/arthur/Desktop/code/BetterGame
 # Auto-detected concurrency: 20
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_f1257b_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_aa2188_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"

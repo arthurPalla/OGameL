@@ -12,8 +12,6 @@ type player = {
   mutable feed: int;
   mutable x: int;
   mutable y:int;
-  mutable xtranslate: int;
-  mutable ytranslate: int;
   texture: (Raylib.Texture.t cyclic_list) array;  
   mutable direction: int;
 } 
@@ -63,7 +61,7 @@ let texture_from_int n =
   |_ -> failwith "error while loading house texture"
 
 let rec generate_coo l =
-  let x,y = Random.int (w - 300) + 100, Random.int (h-300) + 100 in
+  let x,y = Random.int (4*w) -2*w, Random.int (4*h) - 2*h in
   let rec aux list =
     match list with
     |t::q -> if x < t.x + t.width + 70 && t.x > t.x - t.width - 70 && y<t.y + t.height + 70 && y>t.y -t.width-70 then generate_coo l else aux q
@@ -86,39 +84,43 @@ let player_init () =
     let a2 = Array.init 9 (fun j -> (texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {elements = a2; i=0; length = 10}) in 
-  {health =20 ; feed = 20; x= 100; y = 100; xtranslate = 0; ytranslate = 0; texture = test; direction = 0}
+  {health =20 ; feed = 20; x= 500; y = 500; texture = test; direction = 0}
 
 let generate_floor ()= 
   texture_crop_and_resize "./images/tileset.png" 440. 120. 50. 50. 50 50
 
 let generate_road ()= 
-  let text_road = texture_crop_and_resize "./images/tileset.png" 0. 60. 28.8 32. 50 50 in 
+  let text_road = texture_crop_and_resize "./images/tileset.png" 0. 64. 28.8 32. 50 50 in 
   let rec aux x1 y1 acc n =
-  if x1 < 0 || y1<0 || x1 > w || y1 > h then acc
-  else if n <= 0 then acc
+  if n <= 0 then acc
   else 
     let bat = {width=50; height=50; x=x1 ;y=y1 ; texture = text_road} in 
     match Random.int 4 with
-    |1 -> aux (x1+50) (y1+42) (bat::acc) (n-1) @ aux (x1) (y1+42) (bat::acc) (n-1) @ aux (x1+50) (y1) (bat::acc) (n-1)
-    |2 -> aux (x1+42) (y1) (bat::acc) (n-1)
-    |3 -> aux (x1) (y1+42) (bat::acc) (n-1)
+    |1 -> aux (x1+50) (y1+50) (bat::acc) (n-1) @ aux (x1) (y1+50) (bat::acc) (n-1) @ aux (x1+50) (y1) (bat::acc) (n-1)
+    |2 -> aux (x1+50) (y1) (bat::acc) (n-1)
+    |3 -> aux (x1) (y1+50) (bat::acc) (n-1)
     |_ -> acc
 in 
-(aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 20 ) @ (aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 0 ) 
+(aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 30 ) @ (aux ((Random.int (w/50))*50) ((Random.int (h/50))*50) [] 30 ) 
 
-let rec draw_batiment l =
+
+let rec draw_batiment l (joueur:player)=
   match l with
-  |t::q -> Raylib.draw_texture t.texture t.x t.y Raylib.Color.white; draw_batiment q
+  |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; draw_batiment q joueur
   |[] -> ()
 
-let draw_floor floor = 
-  for i = 0 to w/50 +1 do 
-    for j = 0 to h/50 + 1 do 
-      Raylib.draw_texture floor (i*50)  (j*50) Raylib.Color.white
+
+let draw_floor floor (joueur:player)= 
+  let xt = (joueur.x mod 50) in 
+  let yt = (joueur.y mod 50) in 
+  for i = -1 to (w+1)/50 +1 do 
+    for j = -1 to (h+1)/50 + 1 do 
+      Raylib.draw_texture floor (i*50 - xt)  (j*50 - yt) Raylib.Color.white
     done;
   done;
   () 
 
+  
 let update_player (joueur:player) = 
   let open Raylib in
   if(is_key_down Key.W) then ((joueur.y <- joueur.y -5; joueur.direction <- 0);   cyclic_next joueur.texture.(0))
@@ -129,13 +131,13 @@ let update_player (joueur:player) =
 
 
 let draw_player (joueur:player) = 
-  Raylib.draw_texture (cyclic_top ((joueur.texture).(joueur.direction))) (joueur.x + joueur.xtranslate) (joueur.y + joueur.ytranslate) Raylib.Color.white
+  Raylib.draw_texture (cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white
 
 let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
-  {batiment = generate_map ((Random.int 5) + 1); floor = generate_floor (); roads = generate_road ()}
+  {batiment = generate_map (30); floor = generate_floor (); roads = generate_road ()}
  
 
 let rec loop map joueur=
@@ -144,10 +146,13 @@ let rec loop map joueur=
     update_player joueur;
     let open Raylib in
     begin_drawing ();
-    draw_floor map.floor;
-    draw_batiment map.roads ;
-    draw_batiment map.batiment;
+
+    draw_floor map.floor joueur;
+    draw_batiment (map.roads) joueur;
+    draw_batiment (map.batiment) joueur;
     draw_player joueur;
+    draw_text (string_of_int joueur.x) 50 50 30 Color.red;
+    draw_text (string_of_int joueur.y) 140 50 30 Color.red;
     end_drawing ();
     loop map joueur
 
