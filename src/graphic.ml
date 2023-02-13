@@ -38,7 +38,7 @@ let texture_crop_and_resize =
       end;
       Hashtbl.find cache key
   in aux
-(*224 128*)
+  
 let texture_tree_from_int n = 
   match n with 
   |0 -> texture_crop_and_resize "./images/autumn_2.png" 0. 0. 112. 128. 100 100
