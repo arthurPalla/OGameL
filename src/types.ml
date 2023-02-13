@@ -30,7 +30,6 @@ type map =
   mutable generated: (int*int) list
 }
 
-
 let cyclic_next c_list =
   if(c_list.i >= c_list.length -2) then 
     c_list.i <- 0

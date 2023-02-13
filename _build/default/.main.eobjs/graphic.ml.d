@@ -1,1 +1,1 @@
-src/graphic.ml: Array Raylib Rectangle Types
+src/graphic.ml: Array Hashtbl Raylib Rectangle Types
