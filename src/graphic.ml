@@ -1,24 +1,44 @@
 let w = 1000
 let h = 1000
-
 let texture_from_image image xsize ysize =
   Raylib.(image_resize (addr image) xsize ysize);
   Raylib.load_texture_from_image(image)
 
-let texture_from_int n =
+
+let texture_batiment_from_int n =
   match n with
   |0 -> texture_from_image (Raylib.load_image("./housesetx1/house1x1.gif")) 100 90
   |1 -> texture_from_image (Raylib.load_image("./housesetx1/house2x1.gif")) 110 110
   |2 -> texture_from_image (Raylib.load_image("./housesetx1/house3x1.gif")) 120 120
   |_ -> failwith "error while loading house texture"
   
-
 let texture_crop_and_resize s cox coy xsize ysize w h = 
   let open Raylib in 
   let img = load_image(s) in
   let rect = Rectangle.create cox coy xsize ysize in 
   image_crop (addr img) rect;
   texture_from_image img w h
+
+(*224 128*)
+let texture_tree_from_int n = 
+  match n with 
+  |0 -> texture_crop_and_resize "./images/autumn_2.png" 0. 0. 112. 128. 100 100
+  |1 -> texture_crop_and_resize "./images/autumn_2.png" 114. 0. 112. 128. 100 100
+  |2 -> texture_crop_and_resize "./images/autumn_3.png" 0. 0. 112. 128. 100 100
+  |3 -> texture_crop_and_resize "./images/autumn_3.png" 114. 0. 112. 128. 100 100
+  |4 -> texture_crop_and_resize "./images/autumn.png" 0. 0. 112. 128. 100 100
+  |5 -> texture_crop_and_resize "./images/autumn.png" 114. 0. 112. 128. 100 100
+  |6 -> texture_crop_and_resize "./images/blue_trees.png" 0. 0. 112. 128. 100 100
+  |7 -> texture_crop_and_resize "./images/blue_trees.png" 114. 0. 112. 128. 100 100
+  |8 -> texture_crop_and_resize "./images/brown_trees_2.png" 0. 0. 112. 128. 100 100
+  |9 -> texture_crop_and_resize "./images/brown_trees_2.png" 114. 0. 112. 128. 100 100
+  |10-> texture_crop_and_resize "./images/brown_trees.png" 0. 0. 112. 128. 100 100
+  |11 -> texture_crop_and_resize "./images/brown_trees.png" 114. 0. 112. 128. 100 100
+  |12 -> texture_crop_and_resize "./images/green_trees.png" 0. 0. 112. 128. 100 100
+  |13 -> texture_crop_and_resize "./images/green_trees.png" 114. 0. 112. 128. 100 100
+  |14 -> texture_crop_and_resize "./images/yellow_trees.png" 0. 0. 112. 128. 100 100
+  |15 -> texture_crop_and_resize "./images/yellow_trees.png" 114. 0. 112. 128. 100 100
+  |_ -> failwith "error while loading trees texture"
 
 let rec draw_road (l:Types.batiments list) (joueur:Types.player) =
 match l with
