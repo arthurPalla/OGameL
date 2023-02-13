@@ -46,8 +46,9 @@ let rec loop map joueur=
     draw_batiment_second_plan (map.batiment) joueur;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
+    draw_hearth joueur;
+    draw_food joueur;
     if joueur.is_inventory_open then draw_inventory joueur;
-
     end_drawing ();
     loop map joueur
 

@@ -7,7 +7,7 @@ let player_init () : player =
     let a2 = Array.init 9 (fun j -> (texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {elements = a2; i=0; length = 10}) in 
-  {health =20 ; feed = 20; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false}
+  {health =11 ; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false}
 
 let go_forward (player:player) (map:map) =
   if not (collision (player.x) (player.y - 5) map.batiment) then 
