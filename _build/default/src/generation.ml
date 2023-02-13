@@ -10,9 +10,9 @@ let generate_map n x y=
 let rec aux number acc =
   if number = 0 then acc
   else match Random.int 3 with
-  |0 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 100; height = 95; x = x1; y =y1; texture = Graphic.texture_from_int 0}::acc)
-  |1 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 110; height = 95; x = x1; y =y1; texture = Graphic.texture_from_int 1}::acc)
-  |2 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 120; height = 100; x = x1; y =y1; texture = Graphic.texture_from_int 2}::acc)
+  |0 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 100; height = 80; x = x1; y =y1; texture = Graphic.texture_from_int 0}::acc)
+  |1 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 107; height = 65; x = x1; y =y1; texture = Graphic.texture_from_int 1}::acc)
+  |2 -> let x1,y1 = generate_coo acc x y in aux (number-1) ({width = 107; height = 65; x = x1; y =y1; texture = Graphic.texture_from_int 2}::acc)
   |_ -> failwith("C'est super bizarre si ça bug ici")
 
 in aux n []
