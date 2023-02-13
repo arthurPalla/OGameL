@@ -1,25 +1,43 @@
 let w = 1000
 let h = 1000
 let texture_from_image image xsize ysize =
-  Raylib.(image_resize (addr image) xsize ysize);
-  Raylib.load_texture_from_image(image)
+  let open Raylib in
+  image_resize (addr image) xsize ysize;
+  let tex = load_texture_from_image image in
+  unload_image image; (* Je pense que c'est safe ici mais c'est bizarre *)
+  tex
 
+let texture_from_image_name =
+    let cache = Hashtbl.create 42 in
+    let aux image_name xsize ysize =
+        if not (Hashtbl.mem cache (image_name, xsize, ysize))
+        then Hashtbl.add cache (image_name, xsize, ysize)
+            (texture_from_image (Raylib.load_image image_name) xsize ysize);
+        Hashtbl.find cache (image_name, xsize, ysize)
+    in aux
 
 let texture_batiment_from_int n =
   match n with
-  |0 -> texture_from_image (Raylib.load_image("./housesetx1/house1x1.gif")) 100 90
-  |1 -> texture_from_image (Raylib.load_image("./housesetx1/house2x1.gif")) 110 110
-  |2 -> texture_from_image (Raylib.load_image("./housesetx1/house3x1.gif")) 120 120
+  |0 -> texture_from_image_name "./housesetx1/house1x1.gif" 100 90
+  |1 -> texture_from_image_name "./housesetx1/house2x1.gif" 110 110
+  |2 -> texture_from_image_name "./housesetx1/house3x1.gif" 120 120
   |_ -> failwith "error while loading house texture"
-  
 
-let texture_crop_and_resize s cox coy xsize ysize w h = 
-  let open Raylib in 
-  let img = load_image(s) in
-  let rect = Rectangle.create cox coy xsize ysize in 
-  image_crop (addr img) rect;
-  texture_from_image img w h
-
+let texture_crop_and_resize =
+  let cache = Hashtbl.create 42 in
+  let aux s cox coy xsize ysize w h =
+      let key = (s, cox, coy, xsize, w, h) in
+      if not (Hashtbl.mem cache key)
+      then begin
+          let open Raylib in
+          let img = load_image(s) in
+          let rect = Rectangle.create cox coy xsize ysize in
+          image_crop (addr img) rect;
+          let tex = texture_from_image img w h in
+          Hashtbl.add cache key tex
+      end;
+      Hashtbl.find cache key
+  in aux
 (*224 128*)
 let texture_tree_from_int n = 
   match n with 
