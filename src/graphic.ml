@@ -69,7 +69,7 @@ let rec draw_batiment_first_plan (l:Types.batiments list ) (joueur:Types.player)
   |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y < joueur.y then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_batiment_first_plan q joueur
   |[] -> ()
 
-  let rec draw_batiment_second_plan (l:Types.batiments list ) (joueur:Types.player) = 
+let rec draw_batiment_second_plan (l:Types.batiments list ) (joueur:Types.player) = 
     match l with
     |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y >= joueur.y then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_batiment_second_plan q joueur
     |[] -> ()
@@ -98,3 +98,29 @@ let draw_inventory (player:Types.player) =
                       Raylib.draw_texture b.image (220 + 63 * (i mod 9)) (360 + 63 * (i / 9)) Raylib.Color.white;
                       Raylib.draw_text (string_of_int a) (260 + 63 * (i mod 9)) (390 + 63 * (i / 9)) 20 Raylib.Color.gray )
   done
+
+let draw_hearth (joueur:Types.player) =
+  let hearth = ref joueur.health in
+  for i = 1 to 10 do 
+    begin 
+      match !hearth with
+      |1 -> Raylib.draw_texture (texture_crop_and_resize "./images/half-heart.png" 0. 0. 60. 60. 25 25) (250 + i*45 ) 900 Raylib.Color.white
+      |a -> if a <= 0 then Raylib.draw_texture (texture_crop_and_resize "./images/empty-heart.png" 0. 0. 60. 60. 25 25) (250 + i*45) 900 Raylib.Color.white
+                    else Raylib.draw_texture (texture_crop_and_resize "./images/heart.png" 0. 0. 60. 60. 25 25) (250 + i*45 ) 900 Raylib.Color.white
+    end;
+    hearth := !hearth - 2
+  done;
+()
+
+let draw_food (joueur:Types.player) =
+  let food = ref joueur.feed in
+  for i = 1 to 10 do 
+    begin 
+      match !food with
+      |1 -> Raylib.draw_texture (texture_crop_and_resize "./images/mc_icons.png" 80. 27. 9. 9. 40 40) (250 + i*45 ) 950 Raylib.Color.gray
+      |a -> if a <= 0 then Raylib.draw_texture (texture_crop_and_resize "./images/mc_icons.png" 43. 27. 9. 9. 35 35) (250 + i*45) 950 Raylib.Color.white
+                    else Raylib.draw_texture (texture_crop_and_resize "./images/mc_icons.png" 70. 27. 9. 9. 40 40) (250 + i*45 ) 950 Raylib.Color.white
+    end;
+    food := !food - 2
+  done;
+  
