@@ -12,5 +12,8 @@ module Main = Dune__exe__Main
 (** @canonical Dune__exe.Physic *)
 module Physic = Dune__exe__Physic
 
+(** @canonical Dune__exe.Player *)
+module Player = Dune__exe__Player
+
 (** @canonical Dune__exe.Types *)
 module Types = Dune__exe__Types

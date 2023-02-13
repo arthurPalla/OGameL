@@ -4,6 +4,12 @@ type 'a cyclic_list = {
   length:int;
 }
 
+type item = {
+  id : int;
+  name : string;
+  image : Raylib.Texture.t
+}
+
 type player = { 
   mutable health: int;
   mutable feed: int;
@@ -11,6 +17,8 @@ type player = {
   mutable y:int;
   texture: (Raylib.Texture.t cyclic_list) array;  
   mutable direction: int;
+  mutable inventory : (int * item) option array;
+  mutable is_inventory_open : bool
 } 
 
 type batiments =

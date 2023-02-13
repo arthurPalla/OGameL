@@ -85,3 +85,16 @@ let draw_floor floor (joueur:Types.player)=
 
 let draw_player (joueur:Types.player) = 
   Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white
+
+let draw_inventory (player:Types.player) =
+  Raylib.draw_texture (texture_crop_and_resize "./images/inventory.png" 0. 0. 198. 130. 594 390) 203 305 Raylib.Color.white;
+  for i = 0 to Array.length player.inventory - 1 do
+    match player.inventory.(i) with
+    | None -> ()
+    | Some(a, b) -> if i >= 36 then (
+                      Raylib.draw_texture b.image (220 + 63 * (i mod 9)) 628 Raylib.Color.white;
+                      Raylib.draw_text (string_of_int a) (260 + 63 * (i mod 9)) 658 20 Raylib.Color.gray )
+                    else (
+                      Raylib.draw_texture b.image (220 + 63 * (i mod 9)) (360 + 63 * (i / 9)) Raylib.Color.white;
+                      Raylib.draw_text (string_of_int a) (260 + 63 * (i mod 9)) (390 + 63 * (i / 9)) 20 Raylib.Color.gray )
+  done

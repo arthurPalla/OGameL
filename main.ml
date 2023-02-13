@@ -1,19 +1,12 @@
 open Generation
 open Graphic
 open Types
-open Physic
+open Player
 
 let rec is_inside_list x l =
   match l with 
   |t::q -> if  t=x then true else is_inside_list x q
   |[] -> false
-
-let player_init () = 
-  let test = Array.init 4 (fun i ->
-    let a2 = Array.init 9 (fun j -> (texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
-  in
-  {elements = a2; i=0; length = 10}) in 
-  {health =20 ; feed = 20; x= 500; y = 500; texture = test; direction = 0}
 
 
 let update_map (map:map) (joueur:player) = 
@@ -29,32 +22,6 @@ let update_map (map:map) (joueur:player) =
   done;
 done; 
 ()
-  
-let update_player (joueur:player) map = 
-  let open Raylib in
-  if(is_key_down Key.W ) then begin 
-    if not (collision (joueur.x) (joueur.y - 5) map.batiment) then 
-      joueur.y <- joueur.y -5; 
-    joueur.direction <- 0;   
-    cyclic_next joueur.texture.(0) end
-
-  else if(is_key_down Key.S) then 
-    begin if not (collision (joueur.x) (joueur.y + 5) map.batiment) then 
-      joueur.y <- joueur.y +5; 
-  joueur.direction <- 1;   
-  cyclic_next joueur.texture.(1) end 
-
-  else if(is_key_down Key.D) then 
-    begin if not (collision (joueur.x + 5) (joueur.y) map.batiment) then 
-      joueur.x <- joueur.x +5; 
-  joueur.direction <- 3;  
-  cyclic_next joueur.texture.(3) end
-  else if(is_key_down Key.A) then 
-    begin if not (collision (joueur.x - 5) (joueur.y) map.batiment) then 
-      joueur.x <- joueur.x -5;
-   joueur.direction <- 2;   
-   cyclic_next joueur.texture.(2) end;
-  ()
 
 let setup ()=
   Random.self_init ();
@@ -79,12 +46,13 @@ let rec loop map joueur=
     draw_batiment_second_plan (map.batiment) joueur;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
+    if joueur.is_inventory_open then draw_inventory joueur;
 
     end_drawing ();
     loop map joueur
 
 let () =
-
     let map = setup () in 
     let joueur = player_init () in 
+    joueur.inventory.(17) <- Some (8, {id = 8; name = "Wood log"; image = (texture_from_image_name "./images/items/1.png" 54 54)});
     loop map joueur;
