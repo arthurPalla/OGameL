@@ -88,6 +88,7 @@ let draw_player (joueur:Types.player) =
 
 let draw_inventory (player:Types.player) =
   Raylib.draw_texture (texture_crop_and_resize "./images/inventory.png" 0. 0. 198. 130. 594 390) 203 305 Raylib.Color.white;
+  Raylib.draw_texture (texture_crop_and_resize "./images/inventory.png" 204. 0. 18. 18. 54 54) (221 + 63 * player.hand) 624 Raylib.Color.white;
   for i = 0 to Array.length player.inventory - 1 do
     match player.inventory.(i) with
     | None -> ()
@@ -106,6 +107,20 @@ let draw_inventory (player:Types.player) =
                         else 
                           Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray)
   done
+
+let draw_current_item (player:Types.player) =
+  match player.inventory.(36 + player.hand) with
+  | None -> ()
+  | Some (_,i) -> if (Raylib.measure_text i.name 20) > 120 then
+                    let string_list = String.split_on_char ' ' i.name in
+                    List.iteri (fun j x -> (Raylib.draw_text x (80 - (Raylib.measure_text x 20) / 2) (260 - (List.length string_list) + j * 20) 20 Raylib.Color.lightgray)) string_list
+                  else 
+                    Raylib.draw_text i.name (80 - (Raylib.measure_text i.name 20) / 2) 270 20 Raylib.Color.lightgray; 
+                  Raylib.draw_texture i.image 53 300 Raylib.Color.white;
+                  match (i.durability, i.max_durability) with
+                  | (Some d, Some max_d) -> Raylib.draw_rectangle 30 360 (int_of_float ((float_of_int max_d) /. ((float_of_int max_d) /. 100.))) 5 Raylib.Color.lightgray;
+                                            Raylib.draw_rectangle 30 360 (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 100.)) 5 Raylib.Color.green
+                  | (None, None) | (None, _) | (_, None) -> ()
 
 let draw_hearth (joueur:Types.player) =
   let hearth = ref joueur.health in

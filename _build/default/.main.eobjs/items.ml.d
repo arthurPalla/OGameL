@@ -1,1 +1,1 @@
-src/items.ml: Graphic Hashtbl Types
+src/items.ml: Array Graphic Hashtbl Player Types

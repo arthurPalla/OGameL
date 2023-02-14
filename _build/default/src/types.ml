@@ -7,7 +7,9 @@ type 'a cyclic_list = {
 type item = {
   name : string;
   image : Raylib.Texture.t;
-  stackable : bool
+  stackable : bool;
+  mutable durability : int option;
+  max_durability : int option
 }
 type enemy = {
   mutable health: int;
@@ -27,7 +29,8 @@ type player = {
   texture: (Raylib.Texture.t cyclic_list) array;  
   mutable direction: int;
   mutable inventory : (int * item) option array;
-  mutable is_inventory_open : bool
+  mutable is_inventory_open : bool;
+  mutable hand : int 
 } 
 
 type batiments =

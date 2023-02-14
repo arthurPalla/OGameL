@@ -3,7 +3,7 @@ let player_init () : (Types.player) =
     let a2 = Array.init 9 (fun j -> (Graphic.texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {Types.elements = a2; i=0; length = 10}) in 
-  {health =11 ; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false}
+  {health =11 ; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
   if not (Physic.collision (player.x) (player.y - 5) map.batiment) then 
@@ -33,7 +33,7 @@ let show_hide_inventory (player:Types.player) =
   if player.is_inventory_open then player.is_inventory_open<-false
   else player.is_inventory_open<-true
 
-let rec get_item (player:player) (item:item) (nb:int) (c:int) =
+let rec get_item (player:Types.player) (item:Types.item) (nb:int) (c:int) =
   if c < 45 && item.stackable then
     match player.inventory.(c) with
     | None -> if nb <= 99 then (player.inventory.(c) <- Some (nb, item))
@@ -48,7 +48,7 @@ let rec get_item (player:player) (item:item) (nb:int) (c:int) =
     | _ -> get_item player item nb (c + 1)
   else ()
 
-let rec drop_item (player:player) (item:item) (nb:int) (c:int) =
+let rec drop_item (player:Types.player) (item:Types.item) (nb:int) (c:int) =
   if c < 45 then
     match player.inventory.(c) with
     | Some (n,i) when (i = item) -> if (nb = n) then (player.inventory.(c) <- None; nb)
@@ -57,7 +57,7 @@ let rec drop_item (player:player) (item:item) (nb:int) (c:int) =
     | None | Some _ -> drop_item player item nb (c + 1) + 0
   else 0
 
-let move_item (player:player) (c1:int) (c2:int) = 
+let move_item (player:Types.player) (c1:int) (c2:int) = 
   match (player.inventory.(c1), player.inventory.(c2)) with
   | _, None -> player.inventory.(c2) <- player.inventory.(c1); player.inventory.(c1) <- None
   | None, _ -> ()
@@ -71,11 +71,27 @@ let move_item (player:player) (c1:int) (c2:int) =
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
 
-let update_player (joueur:player) map = 
+let hand_select (player:Types.player) (hand:int) = 
+  player.hand <- hand
+
+let update_player (joueur:Types.player) map = 
   let open Raylib in
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map
   else if(is_key_down Key.D) && (not joueur.is_inventory_open) then go_right joueur map
   else if(is_key_down Key.A) && (not joueur.is_inventory_open) then go_left joueur map
-  else if (is_key_pressed Key.I) then show_hide_inventory joueur
+  else 
+    let key = get_key_pressed () in
+    match key with
+    | Key.I -> show_hide_inventory joueur
+    | Key.One -> hand_select joueur 0
+    | Key.Two -> hand_select joueur 1
+    | Key.Three -> hand_select joueur 2
+    | Key.Four -> hand_select joueur 3
+    | Key.Five -> hand_select joueur 4
+    | Key.Six -> hand_select joueur 5
+    | Key.Seven -> hand_select joueur 6
+    | Key.Eight -> hand_select joueur 7
+    | Key.Nine -> hand_select joueur 8
+    | _ -> ()
   ; ()

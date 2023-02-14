@@ -2,11 +2,8 @@ open Generation
 open Graphic
 open Types
 open Player
-<<<<<<< HEAD
-open Items
-=======
 open Enemy
->>>>>>> d2758b55e478fbcec4986e528a92c3939e9a5663
+open Items
 
 let rec is_inside_list x l =
   match l with 
@@ -33,13 +30,9 @@ let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
-<<<<<<< HEAD
   fill_item_table ();
-  {batiment = generate_map 40 1000 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
-=======
   let bat = generate_map 40 1000 0 0 in 
   {batiment = bat; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]; enemies = generate_enemy 200 0 0 bat}
->>>>>>> d2758b55e478fbcec4986e528a92c3939e9a5663
  
 
 let rec loop map joueur=
@@ -62,6 +55,7 @@ let rec loop map joueur=
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
     draw_hearth joueur;
     draw_food joueur;
+    draw_current_item joueur;
     if joueur.is_inventory_open then draw_inventory joueur;
     end_drawing ();
     loop map joueur
@@ -70,6 +64,7 @@ let () =
     let map = setup () in 
     let joueur = player_init () in 
     get_item joueur (item_from_id 1) 237 0;
+    get_item joueur (item_from_id 1) 27 44;
     get_item joueur (item_from_id 2) 214 9;
     get_item joueur (item_from_id 3) 24 18;
     get_item joueur (item_from_id 4) 1 36;
@@ -78,7 +73,5 @@ let () =
     get_item joueur (item_from_id 7) 1 39;
     get_item joueur (item_from_id 8) 1 40;
     get_item joueur (item_from_id 9) 1 41;
-    get_item joueur (item_from_id 10) 1 42;
-    get_item joueur (item_from_id 11) 1 43;
-    get_item joueur (item_from_id 12) 1 44;
+    use_item_durability joueur 40 80;
     loop map joueur
