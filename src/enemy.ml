@@ -57,14 +57,14 @@ let continue_direction (enemy:Types.enemy) (map:Types.map)=
   |_ -> failwith "Bizzarre"
 
 let update_enemy (enemy:Types.enemy) (joueur:Types.player) (map:Types.map)= 
-  if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500 then begin 
-    if not (should_change_direction enemy) then 
+  if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500   then begin 
+    if not (should_change_direction enemy) && (abs (enemy.x -joueur.x) >= 50 && abs (enemy.y -joueur.y) >= 50)then 
       continue_direction enemy map
-    else if abs (enemy.x -joueur.x) >= abs (enemy.y -joueur.y) then  (
+    else if abs (enemy.x -joueur.x) >= abs (enemy.y -joueur.y) && abs (enemy.x -joueur.x) >=50 then (
       if enemy.x <= joueur.x then go_right enemy map
       else go_left enemy map
     )
-    else (
+    else if abs (enemy.x -joueur.x) <= abs (enemy.y -joueur.y) && abs (enemy.y -joueur.y) >= 50 then (
       if enemy.y <= joueur.y then go_backward enemy map
       else go_forward enemy map;
     )

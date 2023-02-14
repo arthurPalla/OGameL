@@ -22,7 +22,18 @@ type enemy = {
   mutable sleep_time: int;
   mutable moove_time: int;
 }
+type batiments =
+{
+  width:int;
+  height: int;
+  x:int;
+  inside : Raylib.Texture.t option; 
+  y:int;
+  texture :Raylib.Texture.t
+}
+
 type player = { 
+  mutable inside_batiment: batiments option;
   mutable health: int;
   mutable feed: int;
   mutable x: int;
@@ -33,15 +44,6 @@ type player = {
   mutable is_inventory_open : bool;
   mutable hand : int 
 } 
-
-type batiments =
-{
-  width:int;
-  height: int;
-  x:int;
-  y:int;
-  texture :Raylib.Texture.t
-}
 
 type map = 
 {
