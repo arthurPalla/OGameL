@@ -9,7 +9,16 @@ type item = {
   name : string;
   image : Raylib.Texture.t
 }
-
+type enemy = {
+  mutable health: int;
+  mutable x: int;
+  mutable y:int;
+  texture: (Raylib.Texture.t cyclic_list) array; 
+  attack_texture :  (Raylib.Texture.t cyclic_list) array;
+  mutable direction: int;
+  mutable is_attacking: bool;
+  mutable sleep_time: int;
+}
 type player = { 
   mutable health: int;
   mutable feed: int;
@@ -33,6 +42,7 @@ type batiments =
 type map = 
 {
   mutable batiment: batiments list;
+  mutable enemies: enemy list;
   floor: Raylib.Texture.t;
   mutable roads: batiments list;
   mutable generated: (int*int) list

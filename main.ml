@@ -2,6 +2,7 @@ open Generation
 open Graphic
 open Types
 open Player
+open Enemy
 
 let rec is_inside_list x l =
   match l with 
@@ -18,7 +19,8 @@ let update_map (map:map) (joueur:player) =
         Raylib.draw_text (String.cat (string_of_int (x1+i) )  (string_of_int (y1+j)) ) (300+50 * i) (300+50*j) 30 Raylib.Color.red;
         map.generated <- ((x1 + i),(y1+j))::map.generated;
         map.roads <- generate_road (x1 + i) (y1 + j) @ map.roads;
-        map.batiment <- (generate_map 40 1000 (x1 + i) (y1 + j)) @ map.batiment;)
+        map.batiment <- (generate_map 40 1000 (x1 + i) (y1 + j)) @ map.batiment;
+        map.enemies <- generate_enemy 200 (x1 + i) (y1 + j) map.batiment @ map.enemies)
   done;
 done; 
 ()
@@ -27,7 +29,8 @@ let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
-  {batiment = generate_map 40 1000 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
+  let bat = generate_map 40 1000 0 0 in 
+  {batiment = bat; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]; enemies = generate_enemy 200 0 0 bat}
  
 
 let rec loop map joueur=
@@ -36,6 +39,7 @@ let rec loop map joueur=
   else
     update_player joueur map;
     update_map map joueur;
+    update_enemies map.enemies joueur map;
     let open Raylib in
     begin_drawing ();
     draw_floor map.floor joueur;
@@ -44,6 +48,7 @@ let rec loop map joueur=
     draw_player joueur;
     draw_fps 300 300;
     draw_batiment_second_plan (map.batiment) joueur;
+    draw_enemy map.enemies joueur;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
     draw_hearth joueur;

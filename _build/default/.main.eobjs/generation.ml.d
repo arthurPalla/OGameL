@@ -1,1 +1,1 @@
-src/generation.ml: Graphic Random Types
+src/generation.ml: Enemy Graphic Random Types
