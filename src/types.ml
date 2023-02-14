@@ -5,9 +5,9 @@ type 'a cyclic_list = {
 }
 
 type item = {
-  id : int;
   name : string;
-  image : Raylib.Texture.t
+  image : Raylib.Texture.t;
+  stackable : bool
 }
 
 type player = { 

@@ -2,6 +2,7 @@ open Generation
 open Graphic
 open Types
 open Player
+open Items
 
 let rec is_inside_list x l =
   match l with 
@@ -27,6 +28,7 @@ let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
+  fill_item_table ();
   {batiment = generate_map 40 1000 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
  
 
@@ -55,5 +57,16 @@ let rec loop map joueur=
 let () =
     let map = setup () in 
     let joueur = player_init () in 
-    joueur.inventory.(17) <- Some (8, {id = 8; name = "Wood log"; image = (texture_from_image_name "./images/items/1.png" 54 54)});
-    loop map joueur;
+    get_item joueur (item_from_id 1) 237 0;
+    get_item joueur (item_from_id 2) 214 9;
+    get_item joueur (item_from_id 3) 24 18;
+    get_item joueur (item_from_id 4) 1 36;
+    get_item joueur (item_from_id 5) 1 37;
+    get_item joueur (item_from_id 6) 1 38;
+    get_item joueur (item_from_id 7) 1 39;
+    get_item joueur (item_from_id 8) 1 40;
+    get_item joueur (item_from_id 9) 1 41;
+    get_item joueur (item_from_id 10) 1 42;
+    get_item joueur (item_from_id 11) 1 43;
+    get_item joueur (item_from_id 12) 1 44;
+    loop map joueur

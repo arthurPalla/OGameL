@@ -6,6 +6,9 @@ module Generation = Dune__exe__Generation
 (** @canonical Dune__exe.Graphic *)
 module Graphic = Dune__exe__Graphic
 
+(** @canonical Dune__exe.Items *)
+module Items = Dune__exe__Items
+
 (** @canonical Dune__exe.Main *)
 module Main = Dune__exe__Main
 

@@ -92,11 +92,19 @@ let draw_inventory (player:Types.player) =
     match player.inventory.(i) with
     | None -> ()
     | Some(a, b) -> if i >= 36 then (
-                      Raylib.draw_texture b.image (220 + 63 * (i mod 9)) 628 Raylib.Color.white;
-                      Raylib.draw_text (string_of_int a) (260 + 63 * (i mod 9)) 658 20 Raylib.Color.gray )
+                      Raylib.draw_texture b.image (221 + 63 * (i mod 9)) 624 Raylib.Color.white;
+                      if b.stackable then 
+                        if a > 9 then
+                          Raylib.draw_text (string_of_int a) (252 + 63 * (i mod 9)) 660 20 Raylib.Color.gray
+                        else
+                          Raylib.draw_text (string_of_int a) (261 + 63 * (i mod 9)) 660 20 Raylib.Color.gray)
                     else (
                       Raylib.draw_texture b.image (220 + 63 * (i mod 9)) (360 + 63 * (i / 9)) Raylib.Color.white;
-                      Raylib.draw_text (string_of_int a) (260 + 63 * (i mod 9)) (390 + 63 * (i / 9)) 20 Raylib.Color.gray )
+                      if b.stackable then
+                        if a > 9 then
+                          Raylib.draw_text (string_of_int a) (253 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray
+                        else 
+                          Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray)
   done
 
 let draw_hearth (joueur:Types.player) =
