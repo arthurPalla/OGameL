@@ -64,15 +64,6 @@ match l with
 |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_road q joueur
 |[] -> ()
 
-let rec draw_batiment_first_plan (l:Types.batiments list ) (joueur:Types.player) = 
-  match l with
-  |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y < joueur.y then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_batiment_first_plan q joueur
-  |[] -> ()
-
-let rec draw_batiment_second_plan (l:Types.batiments list ) (joueur:Types.player) = 
-    match l with
-    |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y >= joueur.y then   Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_batiment_second_plan q joueur
-    |[] -> ()
 let draw_floor floor (joueur:Types.player)= 
   let xt = (joueur.x mod 50) in 
   let yt = (joueur.y mod 50) in 
@@ -82,9 +73,6 @@ let draw_floor floor (joueur:Types.player)=
     done;
   done;
   () 
-
-let draw_player (joueur:Types.player) = 
-  Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white
 
 let draw_inventory (player:Types.player) =
   Raylib.draw_texture (texture_crop_and_resize "./images/inventory.png" 0. 0. 198. 130. 594 390) 203 305 Raylib.Color.white;
@@ -132,8 +120,36 @@ let draw_food (joueur:Types.player) =
     food := !food - 2
   done;
   ()
+ 
+  let draw_perspective (map:Types.map) (joueur:Types.player) =
+    map.batiment <- List.fast_sort (fun (a:Types.batiments) -> fun b -> a.y - b.y) map.batiment;
+    map.enemies <- List.fast_sort (fun (a:Types.enemy) -> fun b -> a.y - b.y) map.enemies;
+    let rec aux (l1:Types.batiments list) (l2:Types.enemy list) j =
+      match (l1,l2) with 
+      |((t::q),(a::b)) -> if t.y <= a.y then begin 
+                            if t.y <= joueur.y ||  j then (
+                               Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q (a::b) j)
+                            else (
+                              Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                          end
+                        else begin 
+                          if a.y <= joueur.y ||  j then (
+                            Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux (t::q) (b) j)
+                         else (
+                           Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                       end
+      |(t::q) , [] -> if t.y <= joueur.y ||  j then (
+                            Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q [] j)
+                        else (
+                          Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) [] true)
   
-let rec draw_enemy (l:Types.enemy list ) (joueur:Types.player) = 
-  match l with
-  |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y < joueur.y then Raylib.draw_texture (Types.cyclic_top ((t.texture).(t.direction))) (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_enemy q joueur
-  |[] -> ()
+      |[],(a::b) ->  if a.y <= joueur.y ||  j then (
+                      Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux [] b j)
+                  else (
+                    Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux [] (a::b) true)
+      |[],[] -> () in 
+      
+      let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
+      let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
+    aux (List.filter f map.batiment) (List.filter g map.enemies) false
+  

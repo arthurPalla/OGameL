@@ -9,7 +9,7 @@ let goblin_init x1 y1  : (Types.enemy)=
   in
   {Types.elements = a2; i=0; length = 3}) in
 
-  {health =11 ; x= x1; y = y1; texture = text; direction = 0; is_attacking = false; attack_texture = texture_attack; sleep_time = 0}
+  {health =11 ; x= x1; y = y1; texture = text; direction = 0; is_attacking = false; attack_texture = texture_attack; sleep_time = 0; moove_time = 0}
 
 let go_forward (enemy:Types.enemy) (map:Types.map) =
   if not (Physic.collision (enemy.x) (enemy.y - 5) map.batiment) then 
@@ -36,14 +36,31 @@ let go_left (enemy:Types.enemy) (map:Types.map) =
   Types.cyclic_next enemy.texture.(3)
 
 let should_moove (enemy:Types.enemy) = 
-  if enemy.sleep_time >= 5 then(
+  if enemy.sleep_time >= 3 then(
     enemy.sleep_time <- 0; true)
   else(
     enemy.sleep_time <- enemy.sleep_time + 1;
     false)
+let should_change_direction (enemy:Types.enemy) = 
+  if enemy.moove_time >=6 then (
+    enemy.moove_time <- 0; true)  
+  else(
+    enemy.moove_time <- enemy.moove_time +1; 
+    false) 
+
+let continue_direction (enemy:Types.enemy) (map:Types.map)= 
+  match enemy.direction with 
+  |0 -> go_backward enemy map
+  |1 -> go_right enemy map
+  |2 -> go_forward enemy map
+  |3 -> go_left enemy map
+  |_ -> failwith "Bizzarre"
+
 let update_enemy (enemy:Types.enemy) (joueur:Types.player) (map:Types.map)= 
   if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500 then begin 
-    if abs (enemy.x -joueur.x) >= abs (enemy.y -joueur.y) then  (
+    if not (should_change_direction enemy) then 
+      continue_direction enemy map
+    else if abs (enemy.x -joueur.x) >= abs (enemy.y -joueur.y) then  (
       if enemy.x <= joueur.x then go_right enemy map
       else go_left enemy map
     )

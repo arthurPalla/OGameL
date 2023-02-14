@@ -33,7 +33,7 @@ let show_hide_inventory (player:Types.player) =
   if player.is_inventory_open then player.is_inventory_open<-false
   else player.is_inventory_open<-true
 
-let rec get_item (player:player) (item:item) (nb:int) (c:int) =
+let rec get_item (player:Types.player) (item:Types.item) (nb:int) (c:int) =
   if c < 45 && item.stackable then
     match player.inventory.(c) with
     | None -> if nb <= 99 then (player.inventory.(c) <- Some (nb, item))
@@ -48,7 +48,7 @@ let rec get_item (player:player) (item:item) (nb:int) (c:int) =
     | _ -> get_item player item nb (c + 1)
   else ()
 
-let rec drop_item (player:player) (item:item) (nb:int) (c:int) =
+let rec drop_item (player:Types.player) (item:Types.item) (nb:int) (c:int) =
   if c < 45 then
     match player.inventory.(c) with
     | Some (n,i) when (i = item) -> if (nb = n) then (player.inventory.(c) <- None; nb)
@@ -57,7 +57,7 @@ let rec drop_item (player:player) (item:item) (nb:int) (c:int) =
     | None | Some _ -> drop_item player item nb (c + 1) + 0
   else 0
 
-let move_item (player:player) (c1:int) (c2:int) = 
+let move_item (player:Types.player) (c1:int) (c2:int) = 
   match (player.inventory.(c1), player.inventory.(c2)) with
   | _, None -> player.inventory.(c2) <- player.inventory.(c1); player.inventory.(c1) <- None
   | None, _ -> ()
@@ -71,7 +71,7 @@ let move_item (player:player) (c1:int) (c2:int) =
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
 
-let update_player (joueur:player) map = 
+let update_player (joueur:Types.player) map = 
   let open Raylib in
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map

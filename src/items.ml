@@ -1,11 +1,10 @@
-open Types
 
 let items = Hashtbl.create 200
 
 let item_from_id (id:int) = Hashtbl.find items id
 
 let fill_item_table () =
-  Hashtbl.add items 1 {name = "Wood log"; image = (Graphic.texture_from_image_name "./images/items/wood_log.png" 54 54); stackable = true};
+  Hashtbl.add items 1 {Types.name = "Wood log"; image = (Graphic.texture_from_image_name "./images/items/wood_log.png" 54 54); stackable = true};
   Hashtbl.add items 2 {name = "Pebbles"; image = (Graphic.texture_from_image_name "./images/items/pebbles.png" 54 54); stackable = true};
   Hashtbl.add items 3 {name = "Stick"; image = (Graphic.texture_from_image_name "./images/items/stick.png" 54 54); stackable = true};
   Hashtbl.add items 4 {name = "Axe"; image = (Graphic.texture_from_image_name "./images/items/axe.png" 54 54); stackable = false};

@@ -2,11 +2,8 @@ open Generation
 open Graphic
 open Types
 open Player
-<<<<<<< HEAD
-open Items
-=======
 open Enemy
->>>>>>> d2758b55e478fbcec4986e528a92c3939e9a5663
+open Items
 
 let rec is_inside_list x l =
   match l with 
@@ -33,13 +30,9 @@ let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
-<<<<<<< HEAD
   fill_item_table ();
-  {batiment = generate_map 40 1000 0 0; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]}
-=======
   let bat = generate_map 40 1000 0 0 in 
   {batiment = bat; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]; enemies = generate_enemy 200 0 0 bat}
->>>>>>> d2758b55e478fbcec4986e528a92c3939e9a5663
  
 
 let rec loop map joueur=
@@ -53,11 +46,8 @@ let rec loop map joueur=
     begin_drawing ();
     draw_floor map.floor joueur;
     draw_road (map.roads) joueur;
-    draw_batiment_first_plan (map.batiment) joueur;
-    draw_player joueur;
+    draw_perspective map joueur;
     draw_fps 300 300;
-    draw_batiment_second_plan (map.batiment) joueur;
-    draw_enemy map.enemies joueur;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
     draw_hearth joueur;

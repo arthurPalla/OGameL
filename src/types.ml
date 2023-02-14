@@ -18,6 +18,7 @@ type enemy = {
   mutable direction: int;
   mutable is_attacking: bool;
   mutable sleep_time: int;
+  mutable moove_time: int;
 }
 type player = { 
   mutable health: int;
