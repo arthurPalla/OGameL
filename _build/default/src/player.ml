@@ -71,9 +71,12 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
 
+<<<<<<< HEAD
 let hand_select (player:Types.player) (hand:int) = 
   player.hand <- hand
 
+=======
+>>>>>>> 4b5efc3219ae308e152417ef8a7055a0fca5b081
 let update_player (joueur:Types.player) map = 
   let open Raylib in
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
