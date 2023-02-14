@@ -8,7 +8,7 @@ let texture_from_image image xsize ysize =
   tex
 
 let texture_from_image_name =
-    let cache = Hashtbl.create 42 in
+    let cache = Hashtbl.create 100 in
     let aux image_name xsize ysize =
         if not (Hashtbl.mem cache (image_name, xsize, ysize))
         then Hashtbl.add cache (image_name, xsize, ysize)
@@ -24,7 +24,7 @@ let texture_batiment_from_int n =
   |_ -> failwith "error while loading house texture"
 
 let texture_crop_and_resize =
-  let cache = Hashtbl.create 42 in
+  let cache = Hashtbl.create 100 in
   let aux s cox coy xsize ysize w h =
       let key = (s, cox, coy, xsize, w, h) in
       if not (Hashtbl.mem cache key)
@@ -131,4 +131,9 @@ let draw_food (joueur:Types.player) =
     end;
     food := !food - 2
   done;
+  ()
   
+let rec draw_enemy (l:Types.enemy list ) (joueur:Types.player) = 
+  match l with
+  |t::q ->if t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 && t.y < joueur.y then Raylib.draw_texture (Types.cyclic_top ((t.texture).(t.direction))) (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white;draw_enemy q joueur
+  |[] -> ()

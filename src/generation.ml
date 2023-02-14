@@ -43,3 +43,9 @@ let generate_road xchunk ychunk =
   in 
   (aux (Random.int (10*Graphic.w) -5*Graphic.w + 10*xchunk*Graphic.w) (Random.int (10*Graphic.h) - 5*Graphic.h + 10*ychunk*Graphic.w) [] 15 ) @ (aux (Random.int (10*Graphic.w) -5*Graphic.w + 10*xchunk*Graphic.w) (Random.int (10*Graphic.h) - 5*Graphic.h + 10*ychunk*Graphic.w) [] 15 ) 
   
+let generate_enemy n x y map = 
+  let rec aux number acc =
+    if number <= 0 then acc
+    else 
+      let x1,y1 = generate_coo map x y in aux (number-1) ((Enemy.goblin_init x1 y1)::acc)
+  in aux n []
