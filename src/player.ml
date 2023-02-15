@@ -72,10 +72,12 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
                                         player.inventory.(c2) <- Some (99, i1);
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
+                                    
+
 let rec enter_house (joueur:Types.player) (bat:Types.batiments list) = 
   match bat with
   |t::q -> if t.inside <> None &&  abs(t.x - joueur.x) <= 200 && abs(t.y - joueur.y) <=200 then Some t else enter_house joueur q
-  |[] -> if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 30; joueur.y <- (Option.get (joueur.inside_batiment)).y + 30 end; None  
+  |[] ->if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 30; joueur.y <- (Option.get (joueur.inside_batiment)).y + 30 end;None 
 
 let hand_select (player:Types.player) (hand:int) = 
   player.hand <- hand
