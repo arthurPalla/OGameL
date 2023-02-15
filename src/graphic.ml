@@ -86,14 +86,31 @@ let draw_inventory (player:Types.player) =
                         if a > 9 then
                           Raylib.draw_text (string_of_int a) (252 + 63 * (i mod 9)) 660 20 Raylib.Color.gray
                         else
-                          Raylib.draw_text (string_of_int a) (261 + 63 * (i mod 9)) 660 20 Raylib.Color.gray)
-                    else (
+                          Raylib.draw_text (string_of_int a) (261 + 63 * (i mod 9)) 660 20 Raylib.Color.gray
+                      else
+                        match (b.durability, b.max_durability) with
+                        | (None, _) | (_, None) -> ()
+                        | (Some d, Some max_d) -> if (d != max_d) then
+                                                  begin
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) 672 46 2 Raylib.Color.gray;
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) 672 (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 46.)) 2 Raylib.Color.green
+                                                  end
+                    ) else (
                       Raylib.draw_texture b.image (220 + 63 * (i mod 9)) (360 + 63 * (i / 9)) Raylib.Color.white;
                       if b.stackable then
                         if a > 9 then
                           Raylib.draw_text (string_of_int a) (253 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray
                         else 
-                          Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray)
+                          Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray
+                      else
+                        match (b.durability, b.max_durability) with
+                        | (None, _) | (_, None) -> ()
+                        | (Some d, Some max_d) -> if (d != max_d) then
+                                                  begin
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) (408 + 63 * (i / 9)) 46 2 Raylib.Color.gray;
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) (408 + 63 * (i / 9)) (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 46.)) 2 Raylib.Color.green
+                                                  end
+                    )
   done
 
 let draw_current_item (player:Types.player) =

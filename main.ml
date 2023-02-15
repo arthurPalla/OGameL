@@ -63,6 +63,7 @@ let () =
     get_item joueur (item_from_id 2) 214 9;
     get_item joueur (item_from_id 3) 24 18;
     get_item joueur (item_from_id 4) 1 36;
+    get_item joueur (item_from_id 4) 1 16;
     get_item joueur (item_from_id 5) 1 37;
     get_item joueur (item_from_id 6) 1 38;
     get_item joueur (item_from_id 7) 1 39;

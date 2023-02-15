@@ -1,3 +1,5 @@
+let selected_slot = ref (-1)
+
 let player_init () : (Types.player) = 
   let test = Array.init 4 (fun i ->
     let a2 = Array.init 9 (fun j -> (Graphic.texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
@@ -6,25 +8,25 @@ let player_init () : (Types.player) =
   {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x) (player.y - 5) map.batiment) then 
+  if not (Physic.collision (player.x) (player.y - 5) player.inside_batiment map) then 
     player.y <- player.y -5; 
   player.direction <- 0;   
   Types.cyclic_next player.texture.(0)
 
 let go_backward (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x) (player.y + 5) map.batiment) then 
+  if not (Physic.collision (player.x) (player.y + 5) player.inside_batiment map) then 
     player.y <- player.y +5; 
   player.direction <- 1;   
   Types.cyclic_next player.texture.(1)
 
 let go_right (player:Types.player) (map:Types.map) = 
-  if not (Physic.collision (player.x + 5) (player.y) map.batiment) then 
+  if not (Physic.collision (player.x + 5) (player.y) player.inside_batiment map) then 
     player.x <- player.x +5; 
   player.direction <- 3;  
   Types.cyclic_next player.texture.(3)
 
 let go_left (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x - 5) (player.y) map.batiment) then 
+  if not (Physic.collision (player.x - 5) (player.y) player.inside_batiment map) then 
     player.x <- player.x -5;
   player.direction <- 2;   
   Types.cyclic_next player.texture.(2)
@@ -73,13 +75,40 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
 let rec enter_house (joueur:Types.player) (bat:Types.batiments list) = 
   match bat with
   |t::q -> if t.inside <> None &&  abs(t.x - joueur.x) <= 200 && abs(t.y - joueur.y) <=200 then Some t else enter_house joueur q
-  |[] -> None 
+  |[] -> if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 30; joueur.y <- (Option.get (joueur.inside_batiment)).y + 30 end; None  
 
 let hand_select (player:Types.player) (hand:int) = 
   player.hand <- hand
 
+let interaction (joueur:Types.player) (map:Types.map) = 
+  if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 0; joueur.y <- (Option.get (joueur.inside_batiment)).y + 50; joueur.inside_batiment <- None end
+  else joueur.inside_batiment <- enter_house joueur map.batiment
+
+let mouse_detect_slot () =
+  let mouse_x = Raylib.get_mouse_x () in
+  let mouse_y = Raylib.get_mouse_y () in
+  let col = (mouse_x - 221) / 63 in
+  let row = (mouse_y - 360) / 63 in
+  let c = col + 9 * row in
+  if col >= 0 && col < 9 && mouse_y >= 360 && row < 5 then c
+  else -1
+
+let drag_n_drop (player:Types.player) =
+  let slot = mouse_detect_slot () in
+    if (slot < 0) then
+      match player.inventory.(!selected_slot) with
+      | None -> ()
+      | Some (n,i) -> ignore (drop_item player i n !selected_slot)
+    else (
+      move_item player !selected_slot slot; 
+      selected_slot := -1
+    )
+
+
 let update_player (joueur:Types.player) map = 
   let open Raylib in
+  if (joueur.is_inventory_open) && (!selected_slot != -1) && (is_mouse_button_released MouseButton.Left) then drag_n_drop joueur;
+  if (joueur.is_inventory_open) && (is_mouse_button_down MouseButton.Left) && (!selected_slot = -1) then selected_slot := mouse_detect_slot ();
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map
   else if(is_key_down Key.D) && (not joueur.is_inventory_open) then go_right joueur map
@@ -97,6 +126,6 @@ let update_player (joueur:Types.player) map =
     | Key.Seven -> hand_select joueur 6
     | Key.Eight -> hand_select joueur 7
     | Key.Nine -> hand_select joueur 8
-    | Key.E -> if joueur.inside_batiment = None then joueur.inside_batiment <- enter_house joueur map.batiment else joueur.inside_batiment <- None
+    | Key.E -> interaction joueur map
     | _ -> ()
   ; ()

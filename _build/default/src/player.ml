@@ -1,9 +1,11 @@
+let selected_slot = ref (-1)
+
 let player_init () : (Types.player) = 
   let test = Array.init 4 (fun i ->
     let a2 = Array.init 9 (fun j -> (Graphic.texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {Types.elements = a2; i=0; length = 10}) in 
-  {health =11 ; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
+  {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
   if not (Physic.collision (player.x) (player.y - 5) map.batiment) then 
@@ -38,7 +40,7 @@ let rec get_item (player:Types.player) (item:Types.item) (nb:int) (c:int) =
     match player.inventory.(c) with
     | None -> if nb <= 99 then (player.inventory.(c) <- Some (nb, item))
               else (player.inventory.(c) <- Some (99, item); get_item player item (nb - 99) (c + 1))
-    | Some (n, i) when (i = item) -> if n = 99 then (get_item player item nb (c+ 1)) 
+    | Some (n, i) when (i  = item) -> if n = 99 then (get_item player item nb (c+ 1)) 
                                     else if (n + nb) > 99 then (player.inventory.(c) <- Some (99, i); get_item player item (n + nb - 99) (c + 1))
                                     else if (n + nb) <= 99 then (player.inventory.(c) <- Some (n + nb, i))
     | Some _ -> get_item player item nb (c + 1)
@@ -70,15 +72,39 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
                                         player.inventory.(c2) <- Some (99, i1);
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
+let rec enter_house (joueur:Types.player) (bat:Types.batiments list) = 
+  match bat with
+  |t::q -> if t.inside <> None &&  abs(t.x - joueur.x) <= 200 && abs(t.y - joueur.y) <=200 then Some t else enter_house joueur q
+  |[] -> None 
 
-<<<<<<< HEAD
 let hand_select (player:Types.player) (hand:int) = 
   player.hand <- hand
 
-=======
->>>>>>> 4b5efc3219ae308e152417ef8a7055a0fca5b081
+let mouse_detect_slot () =
+  let mouse_x = Raylib.get_mouse_x () in
+  let mouse_y = Raylib.get_mouse_y () in
+  let col = (mouse_x - 221) / 63 in
+  let row = (mouse_y - 360) / 63 in
+  let c = col + 9 * row in
+  if col >= 0 && col < 9 && mouse_y >= 360 && row < 5 then c
+  else -1
+
+let drag_n_drop (player:Types.player) =
+  let slot = mouse_detect_slot () in
+    if (slot < 0) then
+      match player.inventory.(!selected_slot) with
+      | None -> ()
+      | Some (n,i) -> ignore (drop_item player i n !selected_slot)
+    else (
+      move_item player !selected_slot slot; 
+      selected_slot := -1
+    )
+
+
 let update_player (joueur:Types.player) map = 
   let open Raylib in
+  if (joueur.is_inventory_open) && (!selected_slot != -1) && (is_mouse_button_released MouseButton.Left) then drag_n_drop joueur;
+  if (joueur.is_inventory_open) && (is_mouse_button_down MouseButton.Left) && (!selected_slot = -1) then selected_slot := mouse_detect_slot ();
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map
   else if(is_key_down Key.D) && (not joueur.is_inventory_open) then go_right joueur map
@@ -96,5 +122,6 @@ let update_player (joueur:Types.player) map =
     | Key.Seven -> hand_select joueur 6
     | Key.Eight -> hand_select joueur 7
     | Key.Nine -> hand_select joueur 8
+    | Key.E -> if joueur.inside_batiment = None then joueur.inside_batiment <- enter_house joueur map.batiment else joueur.inside_batiment <- None
     | _ -> ()
   ; ()

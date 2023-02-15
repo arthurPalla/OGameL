@@ -44,9 +44,7 @@ let rec loop map joueur=
     update_enemies map.enemies joueur map;
     let open Raylib in
     begin_drawing ();
-    draw_floor map.floor joueur;
-    draw_road (map.roads) joueur;
-    draw_perspective map joueur;
+    draw_map map joueur;
     draw_fps 300 300;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
@@ -65,6 +63,7 @@ let () =
     get_item joueur (item_from_id 2) 214 9;
     get_item joueur (item_from_id 3) 24 18;
     get_item joueur (item_from_id 4) 1 36;
+    get_item joueur (item_from_id 4) 1 16;
     get_item joueur (item_from_id 5) 1 37;
     get_item joueur (item_from_id 6) 1 38;
     get_item joueur (item_from_id 7) 1 39;

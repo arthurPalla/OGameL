@@ -86,14 +86,31 @@ let draw_inventory (player:Types.player) =
                         if a > 9 then
                           Raylib.draw_text (string_of_int a) (252 + 63 * (i mod 9)) 660 20 Raylib.Color.gray
                         else
-                          Raylib.draw_text (string_of_int a) (261 + 63 * (i mod 9)) 660 20 Raylib.Color.gray)
-                    else (
+                          Raylib.draw_text (string_of_int a) (261 + 63 * (i mod 9)) 660 20 Raylib.Color.gray
+                      else
+                        match (b.durability, b.max_durability) with
+                        | (None, _) | (_, None) -> ()
+                        | (Some d, Some max_d) -> if (d != max_d) then
+                                                  begin
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) 672 46 2 Raylib.Color.gray;
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) 672 (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 46.)) 2 Raylib.Color.green
+                                                  end
+                    ) else (
                       Raylib.draw_texture b.image (220 + 63 * (i mod 9)) (360 + 63 * (i / 9)) Raylib.Color.white;
                       if b.stackable then
                         if a > 9 then
                           Raylib.draw_text (string_of_int a) (253 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray
                         else 
-                          Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray)
+                          Raylib.draw_text (string_of_int a) (262 + 63 * (i mod 9)) (395 + 63 * (i / 9)) 20 Raylib.Color.gray
+                      else
+                        match (b.durability, b.max_durability) with
+                        | (None, _) | (_, None) -> ()
+                        | (Some d, Some max_d) -> if (d != max_d) then
+                                                  begin
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) (408 + 63 * (i / 9)) 46 2 Raylib.Color.gray;
+                                                    Raylib.draw_rectangle (225 + 63 * (i mod 9)) (408 + 63 * (i / 9)) (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 46.)) 2 Raylib.Color.green
+                                                  end
+                    )
   done
 
 let draw_current_item (player:Types.player) =
@@ -136,35 +153,47 @@ let draw_food (joueur:Types.player) =
   done;
   ()
  
-  let draw_perspective (map:Types.map) (joueur:Types.player) =
-    map.batiment <- List.fast_sort (fun (a:Types.batiments) -> fun b -> a.y - b.y) map.batiment;
-    map.enemies <- List.fast_sort (fun (a:Types.enemy) -> fun b -> a.y - b.y) map.enemies;
-    let rec aux (l1:Types.batiments list) (l2:Types.enemy list) j =
-      match (l1,l2) with 
-      |((t::q),(a::b)) -> if t.y <= a.y then begin 
-                            if t.y <= joueur.y ||  j then (
-                               Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q (a::b) j)
-                            else (
-                              Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
-                          end
-                        else begin 
-                          if a.y <= joueur.y ||  j then (
-                            Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux (t::q) (b) j)
-                         else (
-                           Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
-                       end
-      |(t::q) , [] -> if t.y <= joueur.y ||  j then (
-                            Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q [] j)
+let draw_inside (house:Types.batiments) (joueur:Types.player) = 
+  Raylib.draw_texture (Option.get house.inside) (house.x - joueur.x) (house.y - joueur.y ) Raylib.Color.white;
+  Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white
+
+ 
+let draw_perspective (map:Types.map) (joueur:Types.player) =
+  map.batiment <- List.fast_sort (fun (a:Types.batiments) -> fun b -> a.y - b.y) map.batiment;
+  map.enemies <- List.fast_sort (fun (a:Types.enemy) -> fun b -> a.y - b.y) map.enemies;
+  let rec aux (l1:Types.batiments list) (l2:Types.enemy list) j =
+    match (l1,l2) with 
+    |((t::q),(a::b)) -> if t.y <= a.y then begin 
+                          if t.y <= joueur.y ||  j then (
+                              Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q (a::b) j)
+                          else (
+                            Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                        end
+                      else begin 
+                        if a.y <= joueur.y ||  j then (
+                          Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux (t::q) (b) j)
                         else (
-                          Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) [] true)
-  
-      |[],(a::b) ->  if a.y <= joueur.y ||  j then (
-                      Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux [] b j)
-                  else (
-                    Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux [] (a::b) true)
-      |[],[] -> () in 
-      
-      let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
-      let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
-    aux (List.filter f map.batiment) (List.filter g map.enemies) false
-  
+                          Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                      end
+    |(t::q) , [] -> if t.y <= joueur.y ||  j then (
+                          Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q [] j)
+                      else (
+                        Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) [] true)
+
+    |[],(a::b) ->  if a.y <= joueur.y ||  j then (
+                    Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux [] b j)
+                else (
+                  Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux [] (a::b) true)
+    |[],[] -> () in 
+    
+    let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
+    let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
+  aux (List.filter f map.batiment) (List.filter g map.enemies) false
+
+let draw_map (map: Types.map) (joueur: Types.player) = 
+  match joueur.inside_batiment with 
+  |Some a -> Raylib.clear_background Raylib.Color.black;
+            draw_inside a joueur
+  |_ ->draw_floor map.floor joueur;
+       draw_road (map.roads) joueur;
+       draw_perspective map joueur
