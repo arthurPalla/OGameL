@@ -12,25 +12,25 @@ let goblin_init x1 y1  : (Types.enemy)=
   {health =11 ; x= x1; y = y1; texture = text; direction = 0; is_attacking = false; attack_texture = texture_attack; sleep_time = 0; moove_time = 0}
 
 let go_forward (enemy:Types.enemy) (map:Types.map) =
-  if not (Physic.collision (enemy.x) (enemy.y - 5) map.batiment) then 
+  if not (Physic.collision (enemy.x) (enemy.y - 5) None map) then 
     enemy.y <- enemy.y -5; 
   enemy.direction <- 2;   
   Types.cyclic_next enemy.texture.(2)
 
 let go_backward (enemy:Types.enemy) (map:Types.map) =
-  if not (Physic.collision (enemy.x) (enemy.y + 5) map.batiment) then 
+  if not (Physic.collision (enemy.x) (enemy.y + 5) None map) then 
     enemy.y <- enemy.y +5; 
   enemy.direction <- 0;   
   Types.cyclic_next enemy.texture.(0)
 
 let go_right (enemy:Types.enemy) (map:Types.map) = 
-  if not (Physic.collision (enemy.x + 5) (enemy.y) map.batiment) then 
+  if not (Physic.collision (enemy.x + 5) (enemy.y) None map) then 
     enemy.x <- enemy.x +5; 
   enemy.direction <- 1;  
   Types.cyclic_next enemy.texture.(1)
 
 let go_left (enemy:Types.enemy) (map:Types.map) =
-  if not (Physic.collision (enemy.x - 5) (enemy.y) map.batiment) then 
+  if not (Physic.collision (enemy.x - 5) (enemy.y) None map) then 
     enemy.x <- enemy.x -5;
   enemy.direction <- 3;   
   Types.cyclic_next enemy.texture.(3)

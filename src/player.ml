@@ -6,25 +6,25 @@ let player_init () : (Types.player) =
   {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x) (player.y - 5) map.batiment) then 
+  if not (Physic.collision (player.x) (player.y - 5) player.inside_batiment map) then 
     player.y <- player.y -5; 
   player.direction <- 0;   
   Types.cyclic_next player.texture.(0)
 
 let go_backward (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x) (player.y + 5) map.batiment) then 
+  if not (Physic.collision (player.x) (player.y + 5) player.inside_batiment map) then 
     player.y <- player.y +5; 
   player.direction <- 1;   
   Types.cyclic_next player.texture.(1)
 
 let go_right (player:Types.player) (map:Types.map) = 
-  if not (Physic.collision (player.x + 5) (player.y) map.batiment) then 
+  if not (Physic.collision (player.x + 5) (player.y) player.inside_batiment map) then 
     player.x <- player.x +5; 
   player.direction <- 3;  
   Types.cyclic_next player.texture.(3)
 
 let go_left (player:Types.player) (map:Types.map) =
-  if not (Physic.collision (player.x - 5) (player.y) map.batiment) then 
+  if not (Physic.collision (player.x - 5) (player.y) player.inside_batiment map) then 
     player.x <- player.x -5;
   player.direction <- 2;   
   Types.cyclic_next player.texture.(2)
@@ -70,14 +70,20 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
                                         player.inventory.(c2) <- Some (99, i1);
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
+                                    
+
 let rec enter_house (joueur:Types.player) (bat:Types.batiments list) = 
   match bat with
   |t::q -> if t.inside <> None &&  abs(t.x - joueur.x) <= 200 && abs(t.y - joueur.y) <=200 then Some t else enter_house joueur q
-  |[] -> None 
+  |[] ->if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 30; joueur.y <- (Option.get (joueur.inside_batiment)).y + 30 end;None 
 
 let hand_select (player:Types.player) (hand:int) = 
   player.hand <- hand
 
+let interaction (joueur:Types.player) (map:Types.map) = 
+  if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 0; joueur.y <- (Option.get (joueur.inside_batiment)).y + 50; joueur.inside_batiment <- None end
+  else joueur.inside_batiment <- enter_house joueur map.batiment
+  
 let update_player (joueur:Types.player) map = 
   let open Raylib in
   if(is_key_down Key.W) && (not joueur.is_inventory_open) then go_forward joueur map
@@ -97,6 +103,6 @@ let update_player (joueur:Types.player) map =
     | Key.Seven -> hand_select joueur 6
     | Key.Eight -> hand_select joueur 7
     | Key.Nine -> hand_select joueur 8
-    | Key.E -> if joueur.inside_batiment = None then joueur.inside_batiment <- enter_house joueur map.batiment else joueur.inside_batiment <- None
+    | Key.E -> interaction joueur map
     | _ -> ()
   ; ()
