@@ -127,6 +127,14 @@ let draw_current_item (player:Types.player) =
                                             Raylib.draw_rectangle 30 360 (int_of_float (((float_of_int d) /. (float_of_int max_d)) *. 100.)) 5 Raylib.Color.green
                   | (None, None) | (None, _) | (_, None) -> ()
 
+let draw_hand (player:Types.player) =
+  match (player.inventory.(36+player.hand), player.direction) with
+  | (Some (_, i), 3) -> Raylib.draw_texture_npatch i.image (Raylib.NPatchInfo.create (Raylib.Rectangle.create 0. 0. 54. 54.) 0 0 0 0 Raylib.NPatchLayout.Nine_patch) (Raylib.Rectangle.create 520. 585. 45. 45.) (Raylib.Vector2.create 0. 45.) (0. -. (float_of_int (player.hit_step * 2))) Raylib.Color.white
+  | (Some (_, i), 0) -> Raylib.draw_texture_npatch i.image (Raylib.NPatchInfo.create (Raylib.Rectangle.create 0. 0. 54. 54.) 0 0 0 0 Raylib.NPatchLayout.Nine_patch) (Raylib.Rectangle.create 540. 575. 15. 54.) (Raylib.Vector2.create 0. 45.) (0. -. (float_of_int (player.hit_step * 2)) *. 0.3) Raylib.Color.white
+  | (Some (_, i), 1) -> Raylib.draw_texture_npatch i.image (Raylib.NPatchInfo.create (Raylib.Rectangle.create 54. 0. (-54.) 54.) 0 0 0 0 Raylib.NPatchLayout.Nine_patch) (Raylib.Rectangle.create 540. 575. 15. 54.) (Raylib.Vector2.create 45. 45.) (0. +. (float_of_int (player.hit_step * 2)) *. 0.3) Raylib.Color.white
+  | (Some (_, i), 2) -> Raylib.draw_texture_npatch i.image (Raylib.NPatchInfo.create (Raylib.Rectangle.create 54. 0. (-54.) 54.) 0 0 0 0 Raylib.NPatchLayout.Nine_patch) (Raylib.Rectangle.create 515. 575. 54. 54.) (Raylib.Vector2.create 45. 45.) (0. +. (float_of_int (player.hit_step * 2))) Raylib.Color.white
+  | (None, _) | (Some _, _) -> ()
+
 let draw_hearth (joueur:Types.player) =
   let hearth = ref joueur.health in
   for i = 1 to 10 do 
@@ -155,7 +163,8 @@ let draw_food (joueur:Types.player) =
  
 let draw_inside (house:Types.batiments) (joueur:Types.player) = 
   Raylib.draw_texture (Option.get house.inside) (house.x - joueur.x) (house.y - joueur.y ) Raylib.Color.white;
-  Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white
+  if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
+  else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur)
 
  
 let draw_perspective (map:Types.map) (joueur:Types.player) =
@@ -167,23 +176,30 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                           if t.y <= joueur.y ||  j then (
                               Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q (a::b) j)
                           else (
-                            Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                            if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
+                            else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur);
+                            aux (t::q) (a::b) true
+                            )
                         end
                       else begin 
                         if a.y <= joueur.y ||  j then (
                           Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux (t::q) (b) j)
                         else (
-                          Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) (a::b) true)
+                          Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur; aux (t::q) (a::b) true)
                       end
     |(t::q) , [] -> if t.y <= joueur.y ||  j then (
                           Raylib.draw_texture t.texture (t.x - joueur.x + 500) (t.y - joueur.y + 500) Raylib.Color.white; aux q [] j)
                       else (
-                        Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux (t::q) [] true)
+                        if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
+                        else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur);
+                        aux (t::q) [] true)
 
     |[],(a::b) ->  if a.y <= joueur.y ||  j then (
                     Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux [] b j)
                 else (
-                  Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; aux [] (a::b) true)
+                  if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
+                  else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur);
+                  aux [] (a::b) true)
     |[],[] -> () in 
     
     let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 

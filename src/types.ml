@@ -42,7 +42,9 @@ type player = {
   mutable direction: int;
   mutable inventory : (int * item) option array;
   mutable is_inventory_open : bool;
-  mutable hand : int 
+  mutable hand : int;
+  mutable is_hitting : bool;
+  mutable hit_step : int
 } 
 
 type map = 

@@ -5,7 +5,7 @@ let player_init () : (Types.player) =
     let a2 = Array.init 9 (fun j -> (Graphic.texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {Types.elements = a2; i=0; length = 10}) in 
-  {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0}
+  {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0; is_hitting = false; hit_step = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
   if not (Physic.collision (player.x) (player.y - 5) player.inside_batiment map) then 
@@ -106,8 +106,18 @@ let drag_n_drop (player:Types.player) =
       selected_slot := -1
     )
 
+let update_hit (player:Types.player) =
+  if player.is_hitting && player.hit_step < 30 then
+    player.hit_step <- player.hit_step + 2
+  else if player.is_hitting && player.hit_step = 30 then
+    player.is_hitting <- false
+  else if (not player.is_hitting) && player.hit_step > 0 then
+    player.hit_step <- player.hit_step - 5
+  else ()
+
 
 let update_player (joueur:Types.player) map = 
+  update_hit joueur;
   let open Raylib in
   if (joueur.is_inventory_open) && (!selected_slot != -1) && (is_mouse_button_released MouseButton.Left) then drag_n_drop joueur;
   if (joueur.is_inventory_open) && (is_mouse_button_down MouseButton.Left) && (!selected_slot = -1) then selected_slot := mouse_detect_slot ();
@@ -115,6 +125,7 @@ let update_player (joueur:Types.player) map =
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map
   else if(is_key_down Key.D) && (not joueur.is_inventory_open) then go_right joueur map
   else if(is_key_down Key.A) && (not joueur.is_inventory_open) then go_left joueur map
+  else if (is_key_down Key.Q) && (not joueur.is_hitting) then joueur.is_hitting <- true
   else 
     let key = get_key_pressed () in
     match key with
