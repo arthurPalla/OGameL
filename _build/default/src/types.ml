@@ -57,11 +57,23 @@ type map =
   mutable generated: (int*int) list
 }
 
+
 let cyclic_next c_list =
   if(c_list.i >= c_list.length -2) then 
     c_list.i <- 0
   else c_list.i <- c_list.i + 1;
   ()
 
+let cyclic_former c_list = 
+  if c_list.i = 0 then c_list.i <- c_list.length -1
+  else c_list.i <- c_list.i -1;
+()
 let cyclic_top c_list = 
   c_list.elements.(c_list.i)  
+
+let cyclic_reset c_list = 
+  c_list.i <- 0
+
+let reset_indice_max c_list = 
+  c_list.i <- c_list.length -1
+  

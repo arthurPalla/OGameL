@@ -1,1 +1,1 @@
-src/items.ml: Array Graphic Hashtbl Types
+src/items.ml: Graphic Hashtbl Types

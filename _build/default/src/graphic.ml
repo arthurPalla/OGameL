@@ -183,7 +183,10 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                         end
                       else begin 
                         if a.y <= joueur.y ||  j then (
-                          Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux (t::q) (b) j)
+                          if(a.is_attacking) then
+                            Raylib.draw_texture (Types.cyclic_top a.attack_texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
+                          else Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white;
+                          aux (t::q) (b) j)
                         else (
                           Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur; aux (t::q) (a::b) true)
                       end
@@ -195,7 +198,10 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                         aux (t::q) [] true)
 
     |[],(a::b) ->  if a.y <= joueur.y ||  j then (
-                    Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; aux [] b j)
+                      if(a.is_attacking) then
+                        Raylib.draw_texture (Types.cyclic_top a.attack_texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
+                      else Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white;
+                        aux [] b j)
                 else (
                   if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
                   else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur);
@@ -205,6 +211,7 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
     let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
     let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
   aux (List.filter f map.batiment) (List.filter g map.enemies) false
+  
 
 let draw_map (map: Types.map) (joueur: Types.player) = 
   match joueur.inside_batiment with 
