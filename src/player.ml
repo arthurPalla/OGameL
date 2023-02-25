@@ -5,7 +5,7 @@ let player_init () : (Types.player) =
     let a2 = Array.init 9 (fun j -> (Graphic.texture_crop_and_resize "./images/player_sheet.png" (float_of_int(j*32)) (float_of_int(291 + i*73)) 32. 73. 50 100))
   in
   {Types.elements = a2; i=0; length = 10}) in 
-  {health =11 ;inside_batiment= None; feed = 11; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0; is_hitting = false; hit_step = 0}
+  {health =21 ;inside_batiment= None; feed = 20; x= 500; y = 500; texture = test; direction = 0; inventory = Array.make 45 None; is_inventory_open = false; hand = 0; is_hitting = false; hit_step = 0}
 
 let go_forward (player:Types.player) (map:Types.map) =
   if not (Physic.collision (player.x) (player.y - 5) player.inside_batiment map) then 
@@ -105,25 +105,56 @@ let drag_n_drop (player:Types.player) =
       selected_slot := -1
     )
 
+let can_cut_tree (joueur: Types.player) (batiment:Types.batiments) = 
+  if abs (batiment.x - joueur.x + 25) <= 70 && abs (batiment.y - joueur.y) <= 70 then
+    match joueur.direction with
+    |1 -> batiment.y - joueur.y <= 70 
+    |3 -> batiment.x  - joueur.x  <= 70
+    |0 -> joueur.y - batiment.y <= 70
+    |2 -> joueur.x - batiment.x - 50 <= 70
+    |_ -> failwith "impossible case";
+  else false
+
 let cut_tree (player:Types.player) (map:Types.map) =
   let rec aux (bat:Types.batiments list) =
     match bat with
-    | t::q -> if t.bat_type = "tree" && abs(t.x - player.x) <= 100 && abs(t.y - player.y) <= 100 then
+    | t::q -> if t.bat_type = "tree" && can_cut_tree player t then
                 begin
-                  map.batiment <- List.filter (fun x -> x <> t) map.batiment;
                   get_item player (Items.item_from_id 1) (Random.int 10) 0;
-                  get_item player (Items.item_from_id 3) (Random.int 10) 0
+                  get_item player (Items.item_from_id 3) (Random.int 10) 0;
+                  q
                 end
-              else aux q
-    | [] -> ()
-  in aux map.batiment
+              else t::aux q
+    | [] -> []
+  in map.batiment <- aux map.batiment
 
-let attack_ennemy (*(player:Types.player) (map:Types.map) (damage:int)*) = ()
+let attack_enemy (joueur: Types.player) (enemy:Types.enemy) damage = 
+  if joueur.hit_step >= 0 && abs (enemy.x - joueur.x + 25) <= 70 && abs (enemy.y - joueur.y) <= 70 then  (
+    match joueur.direction with
+    |1 -> if  enemy.y - joueur.y <= 70 then enemy.health <- enemy.health - damage
+    |3 -> if enemy.x  - joueur.x <= 70 then enemy.health <- enemy.health - damage
+    |0 -> if  joueur.y - enemy.y <= 70 then enemy.health <- enemy.health - damage
+    |2 -> if joueur.x - enemy.x - 50 <= 70 then enemy.health <- enemy.health - damage
+    |_ -> failwith "impossible case");
+  enemy
+  
+let attack_enemies (player:Types.player) (map:Types.map) (damage:int) = 
+  let rec aux list = 
+    match list with 
+    |t::q -> (attack_enemy player t damage) :: aux q
+    |[] -> []
+  in 
+  map.enemies <- aux map.enemies
    
 let player_attack (player:Types.player) (map:Types.map) =
   match player.inventory.(36 + player.hand) with
-  | Some (_,i) -> if i.name = (Items.item_from_id 4).name then (cut_tree player map; i.durability <- Some ((Option.get i.durability) - 5); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
-                  else if i.name = (Items.item_from_id 9).name then (attack_ennemy (*player map 1*); i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+  | Some (_,i) -> if i.name = "Axe" then (attack_enemies player map 5; cut_tree player map; i.durability <- Some ((Option.get i.durability) - 5); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = "Common Sword" then (attack_enemies player map 3; i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = "Rare Sword" then (attack_enemies player map 5; i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = "Master Sword" then (attack_enemies player map 10; i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = "Legendary Sword" then (attack_enemies player map 20; i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = "Pickaxe" then (attack_enemies player map 2; i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+
   | None -> ()
 
 let update_hit (player:Types.player) (map:Types.map) =

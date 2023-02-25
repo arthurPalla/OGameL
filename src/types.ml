@@ -17,6 +17,7 @@ type enemy = {
   mutable y:int;
   texture: (Raylib.Texture.t cyclic_list) array; 
   attack_texture :  (Raylib.Texture.t cyclic_list) array;
+  death_texture : (Raylib.Texture.t cyclic_list) ;
   mutable direction: int;
   mutable is_attacking: bool;
   mutable sleep_time: int;
@@ -56,7 +57,16 @@ type map =
   mutable roads: batiments list;
   mutable generated: (int*int) list
 }
-
+type button = {
+  x: int;
+  y: int;
+  w: int;
+  h: int;
+  value: string;
+  sheet: int;
+  action: player -> unit; 
+  color: Raylib.Color.t
+}
 
 let cyclic_next c_list =
   if(c_list.i >= c_list.length -2) then 
@@ -77,3 +87,6 @@ let cyclic_reset c_list =
 let reset_indice_max c_list = 
   c_list.i <- c_list.length -1
   
+let cyclic_next_to_max c_list = 
+  if c_list.i <> c_list.length -1 then 
+    c_list.i <- c_list.i + 1

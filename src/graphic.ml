@@ -183,7 +183,9 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                         end
                       else begin 
                         if a.y <= joueur.y ||  j then (
-                          if(a.is_attacking) then
+                          if a.health <= 0 then 
+                            Raylib.draw_texture (Types.cyclic_top a.death_texture) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
+                          else if(a.is_attacking) then
                             Raylib.draw_texture (Types.cyclic_top a.attack_texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
                           else Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white;
                           aux (t::q) (b) j)
@@ -208,8 +210,8 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                   aux [] (a::b) true)
     |[],[] -> () in 
     
-    let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
-    let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 600 && t.x >= joueur.x - 600 && t.y <= joueur.y + 600 && t.y >= joueur.y - 600 in 
+    let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 in 
+    let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 in 
   aux (List.filter f map.batiment) (List.filter g map.enemies) false
   
 
@@ -220,3 +222,11 @@ let draw_map (map: Types.map) (joueur: Types.player) =
   |_ ->draw_floor map.floor joueur;
        draw_road (map.roads) joueur;
        draw_perspective map joueur
+
+
+let draw_death () = 
+  Raylib.begin_drawing ();
+  Raylib.clear_background Raylib.Color.raywhite;
+  Raylib.draw_text "Vous etes mort, le monde n'as plus d'espoir" 100 500 20 Raylib.Color.black;
+  Raylib.end_drawing ()
+

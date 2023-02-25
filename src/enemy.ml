@@ -8,8 +8,10 @@ let goblin_init x1 y1  : (Types.enemy)=
     let a2 = Array.init 3 (fun j -> (Graphic.texture_crop_and_resize "./images/goblinsword.png" (float_of_int( 518+ j*64)) (float_of_int(i*64)) 64. 64. 100 100))
   in
   {Types.elements = a2; i=2; length = 3}) in
-
-  {health =11 ; x= x1; y = y1; texture = text; direction = 0; is_attacking = false; attack_texture = texture_attack; sleep_time = 0; moove_time = 0}
+  let death_texture = let a2 = Array.init 5 (fun j -> (Graphic.texture_crop_and_resize "./images/goblinsword.png" (float_of_int(j*64)) (float_of_int(256)) 64. 64. 100 100))
+  in
+  {Types.elements = a2; i=0; length = 5} in
+  {health =20 ; x= x1; y = y1; texture = text; direction = 0; is_attacking = false; attack_texture = texture_attack; sleep_time = 0; moove_time = 0; death_texture = death_texture}
 
 let go_forward (enemy:Types.enemy) (map:Types.map) =
   if not (Physic.collision (enemy.x) (enemy.y - 5) None map) then 
@@ -39,10 +41,10 @@ let attack (enemy:Types.enemy) (joueur:Types.player) =
   enemy.is_attacking <- true;
   if enemy.attack_texture.(enemy.direction).i = 0 then 
     match enemy.direction with
-    |0 -> if abs (enemy.x - joueur.x + 25) <= 50 && enemy.y - joueur.y <= 70 then joueur.health <- joueur.health - 1
-    |1 -> if abs (enemy.y - joueur.y) <= 50 && joueur.x + 25 - enemy.x <= 70 then joueur.health <- joueur.health -1
-    |2 -> if abs (enemy.x - joueur.x + 25) <= 50 && joueur.y - enemy.y <= 70 then joueur.health <- joueur.health - 1
-    |3 -> if abs (enemy.y - joueur.y) <= 50 && enemy.x - joueur.x - 25 <= 70 then joueur.health <- joueur.health -1
+    |0 -> if abs (enemy.x - joueur.x + 25) <= 50 && joueur.y - enemy.y <= 70 then joueur.health <- joueur.health - 1
+    |1 -> if abs (enemy.y - joueur.y) <= 50 && joueur.x  - enemy.x <= 70 then joueur.health <- joueur.health -1
+    |2 -> if abs (enemy.x - joueur.x + 25) <= 50 && enemy.y - joueur.y <= 70 then joueur.health <- joueur.health - 1
+    |3 -> if abs (enemy.y - joueur.y) <= 50 && enemy.x - joueur.x - 50 <= 70 then joueur.health <- joueur.health -1
     |_ -> failwith "impossible case"
 
 let should_moove (enemy:Types.enemy) = 
@@ -83,7 +85,8 @@ let stop_attack (enemy:Types.enemy) =
   done;
   enemy.is_attacking <-false
 let update_enemy (enemy:Types.enemy) (joueur:Types.player) (map:Types.map)= 
-  if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500   then begin 
+  if enemy.health <= 0 then Types.cyclic_next_to_max enemy.death_texture
+  else if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500   then begin 
     if not (should_change_direction enemy) && (abs (enemy.x -joueur.x + 25) >= 20 && abs (enemy.y -joueur.y) >= 20)then(
       stop_attack enemy;
       continue_direction enemy map)

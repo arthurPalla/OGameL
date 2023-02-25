@@ -1,1 +1,1 @@
-src/player.ml: Array Graphic Items Key List MouseButton Option Physic Random Raylib Types
+src/player.ml: Array Graphic Items Key MouseButton Option Physic Random Raylib Types
