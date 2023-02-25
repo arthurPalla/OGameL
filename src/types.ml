@@ -29,7 +29,8 @@ type batiments =
   x:int;
   inside : Raylib.Texture.t option; 
   y:int;
-  texture :Raylib.Texture.t
+  texture :Raylib.Texture.t;
+  bat_type : string
 }
 
 type player = { 

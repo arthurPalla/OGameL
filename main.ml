@@ -39,8 +39,8 @@ let rec loop map joueur=
   if Raylib.window_should_close () then Raylib.close_window ()
   
   else
-    update_player joueur map;
     update_map map joueur;
+    update_player joueur map;
     update_enemies map.enemies joueur map;
     let open Raylib in
     begin_drawing ();
@@ -58,9 +58,8 @@ let rec loop map joueur=
 let () =
     let map = setup () in 
     let joueur = player_init () in 
-    get_item joueur (item_from_id 1) 237 0;
-    get_item joueur (item_from_id 1) 27 44;
-    get_item joueur (item_from_id 2) 214 9;
+    get_item joueur (item_from_id 1) 27 0;
+    get_item joueur (item_from_id 2) 24 1;
     get_item joueur (item_from_id 3) 24 18;
     get_item joueur (item_from_id 4) 1 36;
     get_item joueur (item_from_id 4) 1 16;
@@ -69,5 +68,4 @@ let () =
     get_item joueur (item_from_id 7) 1 39;
     get_item joueur (item_from_id 8) 1 40;
     get_item joueur (item_from_id 9) 1 41;
-    use_item_durability joueur 40 80;
     loop map joueur

@@ -72,7 +72,6 @@ let move_item (player:Types.player) (c1:int) (c2:int) =
                                         player.inventory.(c2) <- Some (99, i1);
                                         player.inventory.(c1) <- Some ((n1 + n2 - 99), i1)
                                       )
-                                    
 
 let rec enter_house (joueur:Types.player) (bat:Types.batiments list) = 
   match bat with
@@ -106,18 +105,39 @@ let drag_n_drop (player:Types.player) =
       selected_slot := -1
     )
 
-let update_hit (player:Types.player) =
+let cut_tree (player:Types.player) (map:Types.map) =
+  let rec aux (bat:Types.batiments list) =
+    match bat with
+    | t::q -> if t.bat_type = "tree" && abs(t.x - player.x) <= 100 && abs(t.y - player.y) <= 100 then
+                begin
+                  map.batiment <- List.filter (fun x -> x <> t) map.batiment;
+                  get_item player (Items.item_from_id 1) (Random.int 10) 0;
+                  get_item player (Items.item_from_id 3) (Random.int 10) 0
+                end
+              else aux q
+    | [] -> ()
+  in aux map.batiment
+
+let attack_ennemy (*(player:Types.player) (map:Types.map) (damage:int)*) = ()
+   
+let player_attack (player:Types.player) (map:Types.map) =
+  match player.inventory.(36 + player.hand) with
+  | Some (_,i) -> if i.name = (Items.item_from_id 4).name then (cut_tree player map; i.durability <- Some ((Option.get i.durability) - 5); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+                  else if i.name = (Items.item_from_id 9).name then (attack_ennemy (*player map 1*); i.durability <- Some ((Option.get i.durability) - 4); if (Option.get i.durability) < 0 then ignore (drop_item player i 1 (player.hand + 36)))
+  | None -> ()
+
+let update_hit (player:Types.player) (map:Types.map) =
   if player.is_hitting && player.hit_step < 30 then
     player.hit_step <- player.hit_step + 2
   else if player.is_hitting && player.hit_step = 30 then
-    player.is_hitting <- false
+    (player.is_hitting <- false; player_attack player map)
   else if (not player.is_hitting) && player.hit_step > 0 then
     player.hit_step <- player.hit_step - 5
   else ()
 
 
 let update_player (joueur:Types.player) map = 
-  update_hit joueur;
+  update_hit joueur map;
   let open Raylib in
   if (joueur.is_inventory_open) && (!selected_slot != -1) && (is_mouse_button_released MouseButton.Left) then drag_n_drop joueur;
   if (joueur.is_inventory_open) && (is_mouse_button_down MouseButton.Left) && (!selected_slot = -1) then selected_slot := mouse_detect_slot ();
@@ -125,7 +145,7 @@ let update_player (joueur:Types.player) map =
   else if(is_key_down Key.S) && (not joueur.is_inventory_open) then go_backward joueur map
   else if(is_key_down Key.D) && (not joueur.is_inventory_open) then go_right joueur map
   else if(is_key_down Key.A) && (not joueur.is_inventory_open) then go_left joueur map
-  else if (is_key_down Key.Q) && (not joueur.is_hitting) then joueur.is_hitting <- true
+  else if (is_key_down Key.Q) && (not joueur.is_hitting) && (joueur.hit_step = 0) then joueur.is_hitting <- true
   else 
     let key = get_key_pressed () in
     match key with

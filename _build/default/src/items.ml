@@ -1,6 +1,8 @@
 let items = Hashtbl.create 200
 
-let item_from_id (id:int) = Hashtbl.find items id
+let item_from_id (id:int) =
+  let initial = Hashtbl.find items id in
+  Types.{name = initial.name; image = initial.image; stackable = initial.stackable; durability = initial.durability; max_durability = initial.max_durability}
 
 let use_item_durability (player:Types.player) (c:int) (d:int) =
   match player.inventory.(c) with
@@ -8,8 +10,7 @@ let use_item_durability (player:Types.player) (c:int) (d:int) =
   | Some (_, x) ->
     match x.durability with
     | None -> ()
-    | Some a -> if d > a then ignore (Player.drop_item player x 1 c)
-                else x.durability <- Some (a - d) 
+    | Some a -> x.durability <- Some (a - d) 
 
 
 let fill_item_table () =

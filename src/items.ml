@@ -1,16 +1,8 @@
 let items = Hashtbl.create 200
 
-let item_from_id (id:int) = Hashtbl.find items id
-
-let use_item_durability (player:Types.player) (c:int) (d:int) =
-  match player.inventory.(c) with
-  | None -> ()
-  | Some (_, x) ->
-    match x.durability with
-    | None -> ()
-    | Some a -> if d > a then ignore (Player.drop_item player x 1 c)
-                else x.durability <- Some (a - d) 
-
+let item_from_id (id:int) =
+  let initial = Hashtbl.find items id in
+  Types.{name = initial.name; image = initial.image; stackable = initial.stackable; durability = initial.durability; max_durability = initial.max_durability}
 
 let fill_item_table () =
   Hashtbl.add items 1 Types.{name = "Wood log"; image = (Graphic.texture_from_image_name "./images/items/wood_log.png" 54 54); stackable = true; durability = None; max_durability = None};
