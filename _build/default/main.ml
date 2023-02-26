@@ -26,7 +26,11 @@ let draw_init (joueur:Types.player) =
     draw_text "Ouvrir l'inventaire: i" 300 550 30 Color.white;
     draw_text "Attaquer / Récolter bois: a" 300 600 30 Color.white;
     draw_text "Entrez / Sortir des maison: e" 300 650 30 Color.white;
+<<<<<<< HEAD
     draw_text "Ouvrir les coffres : o" 300 700 30 Color.white;
+=======
+    draw_text "changer d'item dans la main : 1/2/3 ..." 300 700 30 Color.white;
+>>>>>>> 6d1be248e3158e94bea835edb0e577541d26ee32
 
 
 
@@ -60,18 +64,21 @@ let setup ()=
   Random.self_init ();
   Raylib.init_window w h "OGamel";
   Raylib.set_target_fps 60;
+  Raylib.init_audio_device ();
   fill_item_table ();
   let bat = generate_map 40 1000 0 0 in 
   {batiment = bat; floor = generate_floor (); roads = generate_road 0 0; generated = [(0,0)]; enemies = generate_enemy 200 0 0 bat}
  
 
-let rec loop map joueur=
+let rec loop map joueur music=
   if Raylib.window_should_close () then Raylib.close_window ()
   
-  else begin
-    if joueur.health <= 0 then (draw_death () ;loop map joueur)
-    else if joueur.health > 20 then (draw_init joueur; loop map joueur)
+  else begin 
+    if joueur.health <= 0 then (draw_death () ;loop map joueur music)
+    else if joueur.health > 20 then (draw_init joueur; loop map joueur music)
     else (
+      Raylib.update_music_stream music;
+    Raylib.play_music_stream music;
     update_map map joueur;
     update_player joueur map;
     update_enemies map.enemies joueur map;
@@ -86,11 +93,26 @@ let rec loop map joueur=
     draw_current_item joueur;
     if joueur.is_inventory_open then draw_inventory joueur;
     end_drawing ();
-    loop map joueur)
+    loop map joueur music)
     end 
 
 let () =
     let map = setup () in 
     let joueur = player_init () in 
+<<<<<<< HEAD
     get_item joueur (item_from_id 9) 1 36;
     loop map joueur
+=======
+    let music = Raylib.load_music_stream "./music/lavanville.mp3" in
+    get_item joueur (item_from_id 1) 27 0;
+    get_item joueur (item_from_id 2) 24 1;
+    get_item joueur (item_from_id 3) 24 18;
+    get_item joueur (item_from_id 4) 1 36;
+    get_item joueur (item_from_id 4) 1 16;
+    get_item joueur (item_from_id 5) 1 37;
+    get_item joueur (item_from_id 6) 1 38;
+    get_item joueur (item_from_id 7) 1 39;
+    get_item joueur (item_from_id 8) 1 40;
+    get_item joueur (item_from_id 9) 1 41;
+    loop map joueur music
+>>>>>>> 6d1be248e3158e94bea835edb0e577541d26ee32
