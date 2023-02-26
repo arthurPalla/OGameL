@@ -26,6 +26,7 @@ let draw_init (joueur:Types.player) =
     draw_text "inventaire: i" 300 550 30 Color.white;
     draw_text "Attaquer / récolter bois: a" 300 600 30 Color.white;
     draw_text "Entrez / Sortir des maison: e" 300 650 30 Color.white;
+    draw_text "changer d'item dans la main : 1/2/3 ..." 300 700 30 Color.white;
 
 
 

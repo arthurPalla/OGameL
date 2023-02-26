@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/arthur/Desktop/code/OGameL
 # Auto-detected concurrency: 20
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_0d7538_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_ea1293_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
