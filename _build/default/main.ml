@@ -6,9 +6,9 @@ open Enemy
 open Items
 
 let draw_init (joueur:Types.player) = 
-  (* let x,y = Raylib.get_mouse_x (), Raylib.get_mouse_y () in  *)
+  let x,y = Raylib.get_mouse_x (), Raylib.get_mouse_y () in 
 
-  (* if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 870 && x < 400 + 200  && y < 870 + 100 then *)
+  if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 870 && x < 400 + 200  && y < 870 + 100 then
     joueur.health <- 20;
   let open Raylib in 
     begin_drawing ();
