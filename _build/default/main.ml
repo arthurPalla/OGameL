@@ -6,9 +6,9 @@ open Enemy
 open Items
 
 let draw_init (joueur:Types.player) = 
-  let x,y = Raylib.get_mouse_x (), Raylib.get_mouse_y () in 
+  (* let x,y = Raylib.get_mouse_x (), Raylib.get_mouse_y () in  *)
 
-  if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 870 && x < 400 + 200  && y < 870 + 100 then
+  (* if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 870 && x < 400 + 200  && y < 870 + 100 then *)
     joueur.health <- 20;
   let open Raylib in 
     begin_drawing ();
@@ -26,11 +26,8 @@ let draw_init (joueur:Types.player) =
     draw_text "Ouvrir l'inventaire: i" 300 550 30 Color.white;
     draw_text "Attaquer / Récolter bois: a" 300 600 30 Color.white;
     draw_text "Entrez / Sortir des maison: e" 300 650 30 Color.white;
-<<<<<<< HEAD
-    draw_text "Ouvrir les coffres : o" 300 700 30 Color.white;
-=======
     draw_text "changer d'item dans la main : 1/2/3 ..." 300 700 30 Color.white;
->>>>>>> 6d1be248e3158e94bea835edb0e577541d26ee32
+    draw_text "Ouvrir les coffres : o" 300 700 30 Color.white;
 
 
 
@@ -99,20 +96,6 @@ let rec loop map joueur music=
 let () =
     let map = setup () in 
     let joueur = player_init () in 
-<<<<<<< HEAD
-    get_item joueur (item_from_id 9) 1 36;
-    loop map joueur
-=======
     let music = Raylib.load_music_stream "./music/lavanville.mp3" in
-    get_item joueur (item_from_id 1) 27 0;
-    get_item joueur (item_from_id 2) 24 1;
-    get_item joueur (item_from_id 3) 24 18;
-    get_item joueur (item_from_id 4) 1 36;
-    get_item joueur (item_from_id 4) 1 16;
-    get_item joueur (item_from_id 5) 1 37;
-    get_item joueur (item_from_id 6) 1 38;
-    get_item joueur (item_from_id 7) 1 39;
-    get_item joueur (item_from_id 8) 1 40;
-    get_item joueur (item_from_id 9) 1 41;
+    get_item joueur (item_from_id 9) 1 36;
     loop map joueur music
->>>>>>> 6d1be248e3158e94bea835edb0e577541d26ee32
