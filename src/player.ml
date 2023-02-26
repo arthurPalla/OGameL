@@ -114,7 +114,8 @@ let drag_n_drop (player:Types.player) =
       | None -> ()
       | Some (n,i) -> ignore (drop_item player i n !selected_slot);
       selected_slot := -1
-    ) else (
+    ) else if (slot = !selected_slot) then selected_slot := -1
+    else (
       move_item player !selected_slot slot; 
       selected_slot := -1
     )
