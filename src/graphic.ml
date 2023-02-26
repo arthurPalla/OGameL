@@ -183,9 +183,7 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                         end
                       else begin 
                         if a.y <= joueur.y ||  j then (
-                          if a.health <= 0 then 
-                            Raylib.draw_texture (Types.cyclic_top a.death_texture) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
-                          else if(a.is_attacking) then
+                          if(a.is_attacking) then
                             Raylib.draw_texture (Types.cyclic_top a.attack_texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white
                           else Raylib.draw_texture (Types.cyclic_top a.texture.(a.direction)) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white;
                           aux (t::q) (b) j)
@@ -209,10 +207,16 @@ let draw_perspective (map:Types.map) (joueur:Types.player) =
                   else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur);
                   aux [] (a::b) true)
     |[],[] -> () in 
-    
+    let rec draw_death (death_list:Types.enemy list) = 
+      match death_list with
+      |a::q -> Raylib.draw_texture (Types.cyclic_top a.death_texture) (a.x - joueur.x + 500) (a.y - joueur.y + 500) Raylib.Color.white; draw_death q 
+      |[] -> () in 
+
     let f = fun (t:Types.batiments) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 in 
-    let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 in 
-  aux (List.filter f map.batiment) (List.filter g map.enemies) false
+    let g = fun (t:Types.enemy) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 && t.health > 0 in 
+    let h = fun (t:Types.enemy) -> t.x <=  joueur.x + 700 && t.x >= joueur.x - 700 && t.y <= joueur.y + 700 && t.y >= joueur.y - 700 && t.health <= 0 in
+    draw_death (List.filter h map.enemies);
+    aux (List.filter f map.batiment) (List.filter g map.enemies) false
   
 
 let draw_map (map: Types.map) (joueur: Types.player) = 
