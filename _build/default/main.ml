@@ -8,30 +8,31 @@ open Items
 let draw_init (joueur:Types.player) = 
   let x,y = Raylib.get_mouse_x (), Raylib.get_mouse_y () in 
 
-  if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 820 && x < 400 + 200  && y < 820 + 100 then
+  if Raylib.is_mouse_button_pressed Raylib.MouseButton.Left && x > 400  && y > 870 && x < 400 + 200  && y < 870 + 100 then
     joueur.health <- 20;
   let open Raylib in 
     begin_drawing ();
     clear_background Color.raywhite;
     draw_text "OGameL" 400 30 60 Color.red;
-    draw_rectangle 100 100 800 700 Color.black;
-    draw_rectangle (100 + 6) (100+6) (800 - 12) (700 - 12) Raylib.Color.gray;
+    draw_rectangle 100 100 800 750 Color.black;
+    draw_rectangle (100 + 6) (100+6) (800 - 12) (750 - 12) Raylib.Color.gray;
     draw_text "Bienvenue" 400 120 50 Color.white;
     draw_text "Vous êtes un mage sans pouvoir qui est apparu " 150 200 30 Color.white;
     draw_text "sans raison apparente dans un monde truffé " 150 250 30 Color.white;
     draw_text "de petites créatures vertes" 150 300 30 Color.white;
     draw_text "Pourrez vous survivre ? " 150 350 30 Color.white;
     draw_text "Touches :" 400 450 40 Color.white;
-    draw_text "déplacement: z / q / s /d" 300 500 30 Color.white;
-    draw_text "inventaire: i" 300 550 30 Color.white;
-    draw_text "Attaquer / récolter bois: a" 300 600 30 Color.white;
+    draw_text "Déplacement: z / q / s /d" 300 500 30 Color.white;
+    draw_text "Ouvrir l'inventaire: i" 300 550 30 Color.white;
+    draw_text "Attaquer / Récolter bois: a" 300 600 30 Color.white;
     draw_text "Entrez / Sortir des maison: e" 300 650 30 Color.white;
+    draw_text "Ouvrir les coffres : o" 300 700 30 Color.white;
 
 
 
-    draw_rectangle 400 820 200 100 Color.black;
-    draw_rectangle (400 + 6) (820+6) (200 - 12) (100 - 12) Raylib.Color.maroon;
-    draw_text "Jouer" (400 + 200 / 2 -23) (820 + 100 /2 - 10) 20 Raylib.Color.black;
+    draw_rectangle 400 870 200 100 Color.black;
+    draw_rectangle (400 + 6) (870+6) (200 - 12) (100 - 12) Raylib.Color.maroon;
+    draw_text "Jouer" (400 + 200 / 2 -23) (870 + 100 /2 - 10) 20 Raylib.Color.black;
     end_drawing ()
 
 let rec is_inside_list x l =
@@ -79,6 +80,7 @@ let rec loop map joueur=
     draw_map map joueur;
     draw_text (string_of_int joueur.x) 50 50 30 Color.red;
     draw_text (string_of_int joueur.y) 140 50 30 Color.red;
+    let kill_indicator_text = "Kills : " ^ (string_of_int !kill_counter) in draw_text kill_indicator_text (950 - measure_text kill_indicator_text 30) 50 30 Color.black;
     draw_hearth joueur;
     draw_food joueur;
     draw_current_item joueur;
@@ -90,14 +92,5 @@ let rec loop map joueur=
 let () =
     let map = setup () in 
     let joueur = player_init () in 
-    get_item joueur (item_from_id 1) 27 0;
-    get_item joueur (item_from_id 2) 24 1;
-    get_item joueur (item_from_id 3) 24 18;
-    get_item joueur (item_from_id 4) 1 36;
-    get_item joueur (item_from_id 4) 1 16;
-    get_item joueur (item_from_id 5) 1 37;
-    get_item joueur (item_from_id 6) 1 38;
-    get_item joueur (item_from_id 7) 1 39;
-    get_item joueur (item_from_id 8) 1 40;
-    get_item joueur (item_from_id 9) 1 41;
+    get_item joueur (item_from_id 9) 1 36;
     loop map joueur

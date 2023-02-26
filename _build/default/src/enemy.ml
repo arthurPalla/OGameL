@@ -39,7 +39,7 @@ let go_left (enemy:Types.enemy) (map:Types.map) =
 
 let attack (enemy:Types.enemy) (joueur:Types.player) = 
   enemy.is_attacking <- true;
-  if enemy.attack_texture.(enemy.direction).i = 0 then 
+  if enemy.attack_texture.(enemy.direction).i = 0 && joueur.inside_batiment = None then 
     match enemy.direction with
     |0 -> if abs (enemy.x - joueur.x + 25) <= 50 && joueur.y - enemy.y <= 70 then joueur.health <- joueur.health - 1
     |1 -> if abs (enemy.y - joueur.y) <= 50 && joueur.x  - enemy.x <= 70 then joueur.health <- joueur.health -1
@@ -86,7 +86,7 @@ let stop_attack (enemy:Types.enemy) =
   enemy.is_attacking <-false
 let update_enemy (enemy:Types.enemy) (joueur:Types.player) (map:Types.map)= 
   if enemy.health <= 0 then Types.cyclic_next_to_max enemy.death_texture
-  else if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500   then begin 
+  else if abs (enemy.x -joueur.x) <= 500 && abs (enemy.y -joueur.y) <= 500  then begin 
     if not (should_change_direction enemy) && (abs (enemy.x -joueur.x + 25) >= 20 && abs (enemy.y -joueur.y) >= 20)then(
       stop_attack enemy;
       continue_direction enemy map)

@@ -31,7 +31,8 @@ type batiments =
   inside : Raylib.Texture.t option; 
   y:int;
   texture :Raylib.Texture.t;
-  bat_type : string
+  bat_type : string;
+  mutable chest_content : item list
 }
 
 type player = { 

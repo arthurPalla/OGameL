@@ -163,6 +163,8 @@ let draw_food (joueur:Types.player) =
  
 let draw_inside (house:Types.batiments) (joueur:Types.player) = 
   Raylib.draw_texture (Option.get house.inside) (house.x - joueur.x) (house.y - joueur.y ) Raylib.Color.white;
+  if (List.length house.chest_content) = 0 then Raylib.draw_texture (texture_crop_and_resize "./images/tileset.png" 65. 0. 30. 30. 150 150) (house.x - joueur.x + 500) (house.y - joueur.y + 250) Raylib.Color.white
+  else Raylib.draw_texture (texture_crop_and_resize "./images/tileset.png" 35. 0. 30. 30. 150 150) (house.x - joueur.x + 500) (house.y - joueur.y + 250) Raylib.Color.white;
   if joueur.direction = 2 then (draw_hand joueur; Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white)
   else (Raylib.draw_texture (Types.cyclic_top ((joueur.texture).(joueur.direction))) (500) (500) Raylib.Color.white; draw_hand joueur)
 

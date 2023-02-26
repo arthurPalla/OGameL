@@ -1,4 +1,5 @@
 let selected_slot = ref (-1)
+let kill_counter = ref 0
 
 let player_init () : (Types.player) = 
   let test = Array.init 4 (fun i ->
@@ -85,6 +86,18 @@ let interaction (joueur:Types.player) (map:Types.map) =
   if joueur.inside_batiment <> None then begin joueur.x <- (Option.get (joueur.inside_batiment)).x + 0; joueur.y <- (Option.get (joueur.inside_batiment)).y + 50; joueur.inside_batiment <- None end
   else joueur.inside_batiment <- enter_house joueur map.batiment
 
+let rec empty_chest (joueur:Types.player) (l:Types.item list) =
+  match l with 
+  | t::q -> get_item joueur t 1 0; empty_chest joueur q
+  | [] -> ()
+
+let rec open_chest (joueur:Types.player) (bat:Types.batiments list) =
+  match bat with 
+  | t::q -> if joueur.inside_batiment <> None && (Option.get joueur.inside_batiment) = t then (empty_chest joueur t.chest_content; t.chest_content <- [])
+            else open_chest joueur q
+  | [] -> ()
+            
+
 let mouse_detect_slot () =
   let mouse_x = Raylib.get_mouse_x () in
   let mouse_y = Raylib.get_mouse_y () in
@@ -96,11 +109,12 @@ let mouse_detect_slot () =
 
 let drag_n_drop (player:Types.player) =
   let slot = mouse_detect_slot () in
-    if (slot < 0) then
+    if (slot < 0) then (
       match player.inventory.(!selected_slot) with
       | None -> ()
-      | Some (n,i) -> ignore (drop_item player i n !selected_slot)
-    else (
+      | Some (n,i) -> ignore (drop_item player i n !selected_slot);
+      selected_slot := -1
+    ) else (
       move_item player !selected_slot slot; 
       selected_slot := -1
     )
@@ -129,12 +143,13 @@ let cut_tree (player:Types.player) (map:Types.map) =
   in map.batiment <- aux map.batiment
 
 let attack_enemy (joueur: Types.player) (enemy:Types.enemy) damage = 
+  let is_enemy_alive = (enemy.health) > 0 in
   if joueur.hit_step >= 0 && abs (enemy.x - joueur.x + 25) <= 70 && abs (enemy.y - joueur.y) <= 70 then  (
     match joueur.direction with
-    |1 -> if  enemy.y - joueur.y <= 70 then enemy.health <- enemy.health - damage
-    |3 -> if enemy.x  - joueur.x <= 70 then enemy.health <- enemy.health - damage
-    |0 -> if  joueur.y - enemy.y <= 70 then enemy.health <- enemy.health - damage
-    |2 -> if joueur.x - enemy.x - 50 <= 70 then enemy.health <- enemy.health - damage
+    |1 -> if  enemy.y - joueur.y <= 70 then (enemy.health <- enemy.health - damage; if is_enemy_alive && enemy.health <= 0 then incr kill_counter)
+    |3 -> if enemy.x  - joueur.x <= 70 then (enemy.health <- enemy.health - damage; if is_enemy_alive && enemy.health <= 0 then incr kill_counter)
+    |0 -> if  joueur.y - enemy.y <= 70 then (enemy.health <- enemy.health - damage; if is_enemy_alive && enemy.health <= 0 then incr kill_counter)
+    |2 -> if joueur.x - enemy.x - 50 <= 70 then (enemy.health <- enemy.health - damage; if is_enemy_alive && enemy.health <= 0 then incr kill_counter)
     |_ -> failwith "impossible case");
   enemy
   
@@ -191,5 +206,6 @@ let update_player (joueur:Types.player) map =
     | Key.Eight -> hand_select joueur 7
     | Key.Nine -> hand_select joueur 8
     | Key.E -> interaction joueur map
+    | Key.O -> open_chest joueur map.batiment
     | _ -> ()
   ; ()
